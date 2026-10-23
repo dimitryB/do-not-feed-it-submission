@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Copy to wrangler.production.jsonc and replace the account/database IDs.
+  // Account IDs, contract addresses and database IDs are configuration, not keys.
+  "name": "do-not-feed-it",
+  "account_id": "REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  // Replay needs more than the free plan's CPU budget. Use a Workers paid plan.
+  "limits": { "cpu_ms": 30000 },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "do-not-feed-it",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "./drizzle"
+    }
+  ],
+  "vars": {
+    "DNFI_CHAIN_ID": "43111",
+    "DNFI_PUBLIC_RPC_URL": "https://rpc.hemi.network/rpc",
+    "DNFI_CONFIRMATIONS": "16",
+    // Fill these from the actual FeedRegistry deployment; empty means practice.
+    "DNFI_CONTRACT_ADDRESS": "",
+    "DNFI_DEPLOY_BLOCK": "",
+    "DNFI_GENESIS": "",
+    "DNFI_EPOCH_SECONDS": "86400"
+  }
+  // Set DNFI_VERIFIER_PRIVATE_KEY with `wrangler secret put`, never in this file.
+  // HEMI_RPC_URL / HEMI_RPC_FALLBACKS can also be secrets for keyed endpoints.
+}

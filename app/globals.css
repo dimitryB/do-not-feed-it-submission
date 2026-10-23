@@ -1,0 +1,362 @@
+@import "tailwindcss";
+:root{color-scheme:dark;--paper:#f3f0dd;--ink:#0b1213;--panel:#142022;--line:#34413d;--accent:#dded92;--orange:#eea66d;--muted:#9daaa2;--font-display:Impact,'Arial Narrow',sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--paper);font:1rem/1.5 'Helvetica Neue',Arial,sans-serif}button,input{font:inherit}button{cursor:pointer;color:inherit;border:1px solid var(--line);background:#1b2828;border-radius:6px;font-weight:600;transition:background .18s,border-color .18s,transform .18s}button:hover{border-color:#a9bb94;background:#263733}button:active{transform:translateY(1px)}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:5px}input[type=range]{accent-color:var(--accent)}main{max-width:1536px;margin:auto;padding:26px 42px 18px}.masthead{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:20px}.brand{display:flex;gap:14px;align-items:center}.brand-mark{width:36px;height:36px;border:2px solid var(--accent);border-radius:50%;display:grid;place-items:center;font-size:23px;font-weight:900;color:var(--accent);transform:rotate(-12deg)}.brand h1{font-size:17px;letter-spacing:.04em;font-weight:900;margin:0}.brand p{font-size:11px;letter-spacing:.16em;color:var(--muted);margin:1px 0 0}.header-actions{display:flex;align-items:center;gap:10px}.practice-label{font-size:12px;color:var(--muted);letter-spacing:.08em;margin-right:14px;display:flex;align-items:center;gap:8px}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 12px #dded9255}.icon-button{height:38px;min-width:40px;display:grid;place-items:center;padding:8px}.icon-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.volume-control{width:70px;height:4px}.game-shell{border:1px solid #3e4941;border-radius:12px;overflow:hidden;box-shadow:0 25px 80px #0005;background:#111b1b}.stage{position:relative;aspect-ratio:1200/700;isolation:isolate;background:#162526;overflow:hidden}.game-canvas{display:block;width:100%;height:100%;touch-action:none}.stage-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px #04090866;z-index:1}.hud{position:absolute;top:26px;left:28px;right:28px;display:flex;justify-content:space-between;align-items:flex-start;z-index:2;pointer-events:none}.hud-label,.eyebrow,.k-kicker{font-size:11px;letter-spacing:.15em;font-weight:700;color:var(--muted)}.hud .hud-label{font-size:14px;letter-spacing:.1em;color:#b9c6ae}.hud .hud-value{font-size:34px}.shift-phase{font-size:13px!important}.score-group{display:flex;gap:27px}.hud-value{font:500 30px/1.25 ui-monospace,monospace;letter-spacing:-.06em;text-shadow:0 2px 14px #000}.combo{font-size:18px;color:var(--accent);letter-spacing:0}.next-change{display:flex;align-items:center;gap:6px}.hud .stalled{color:#e2493a!important;opacity:.75}.hud-value.stalled{text-decoration:line-through;text-decoration-thickness:2px}.next-change .item-art{width:30px;height:30px;border-radius:4px}.hud-timer{text-align:right}.hud-timer.low{color:#ffac80}.hud-timer .hud-label{display:block}.shift-phase{font-size:11px;letter-spacing:.13em;color:#dddccb}.start-copy{position:absolute;z-index:3;left:6%;top:22%;width:41%;}.section-tag{font-size:11px;color:var(--accent);letter-spacing:.17em;font-weight:700;display:flex;align-items:center;gap:10px}.section-tag:before{content:'';display:block;width:23px;height:1px;background:var(--accent)}.start-copy h2{font:400 clamp(48px,7vw,104px)/.91 var(--font-display);letter-spacing:-.015em;margin:21px 0 24px;text-transform:uppercase;text-shadow:0 4px 24px #0003}.start-copy h2 span{color:var(--accent)}.start-copy .lede{font-size:15px;line-height:1.7;max-width:315px;color:#c1c8b8;margin:0 0 24px}.primary-control{background:var(--accent);color:#1b2519;border-color:var(--accent);padding:14px 23px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;gap:32px;box-shadow:0 3px 20px #c8e17a10}.primary-control:hover{background:#f0ffc2;border-color:#f0ffc2}.primary-control .arrow{font-size:23px;line-height:1}.start-note{font-size:11px;letter-spacing:.035em;color:#9eac9b;margin-top:13px}.scene-caption{position:absolute;bottom:27px;right:30px;z-index:2;text-align:right;pointer-events:none}.scene-caption .subject-name{font-size:12px;letter-spacing:.13em;font-weight:700;color:#dfe4cd}.scene-caption p{font-size:11px;color:#a8b4a2;margin:4px 0 0}.live-caption{position:absolute;bottom:25px;left:28px;right:28px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none;z-index:2}.hint{font-size:12px;color:#ccd3c2;background:#0b1619ba;backdrop-filter:blur(10px);padding:9px 14px;border:1px solid #50605266;border-radius:5px}.craving{position:absolute;right:10%;top:16%;z-index:2;display:flex;align-items:center;gap:12px;background:#0d1b1adc;border:1px solid #89987066;border-radius:8px;padding:9px 16px;pointer-events:none;box-shadow:0 5px 25px #0003}.craving:after{content:'';position:absolute;bottom:-6px;left:48%;width:10px;height:10px;background:#12201d;border-right:1px solid #89987066;border-bottom:1px solid #89987066;transform:rotate(45deg)}.craving small{display:block;font-size:10px;letter-spacing:.12em;color:#a1b197}.craving strong{font-size:14px}.item-art{display:inline-grid;place-items:center;width:58px;height:58px;flex-shrink:0;border-radius:50%;border:1.5px solid #3f4e49;background:radial-gradient(circle at 35% 30%,#2a3432,#0b1211);box-shadow:0 2px 8px #0006}.craving .item-art{width:38px;height:38px}.mutation-banner{position:absolute;top:26px;left:50%;transform:translateX(-50%);z-index:3;background:#172823ee;border:1px solid #bbd28b99;padding:10px 18px;border-radius:6px;text-align:center;min-width:260px;box-shadow:0 5px 30px #0004}.mutation-banner strong{display:block;font-size:14px;color:var(--accent)}.mutation-banner small{font-size:12px;color:#c9d4bd}.mutation-banner.warning{border-color:var(--orange)}.mutation-banner.warning strong{color:var(--orange)}.control-deck{background:linear-gradient(#192322,#121c1d);padding:20px 27px;display:grid;grid-template-columns:1fr auto 1fr;gap:25px;align-items:center;border-top:1px solid #4c5547}.vitals{max-width:240px;display:grid;gap:12px}.vital-row{display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px;letter-spacing:.08em}.vital-row span{color:#bcc7b6}.vital-row strong{font-variant-numeric:tabular-nums;font-weight:500;color:#dce7cf}.meter-track{height:4px;border-radius:2px;overflow:hidden;background:#354139}.meter-fill{height:100%;background:var(--accent);transition:width .25s}.meter-fill.rage{background:#de9770}.ingredients{border:0;margin:0;padding:0;display:flex;gap:8px;min-width:0}.ingredient{position:relative;display:flex;align-items:center;padding:5px 13px 5px 3px;gap:3px;min-width:128px;text-align:left;background:#162221;border-color:#38443b}.ingredient[aria-pressed=true]{border-color:var(--accent);background:#263227;box-shadow:inset 0 -2px var(--accent)}.ingredient-name{font-size:13px;display:block;font-weight:600}.ingredient-desc{font-size:10px;color:#a3b19a;display:block;line-height:1.5}.ingredient kbd{position:absolute;top:4px;right:5px;font-size:9px;color:#9dae97}.launch-area{display:flex;justify-content:flex-end;align-items:center;gap:14px}.launch-area .primary-control{height:59px;min-width:153px;gap:18px}.launch-area small{color:var(--muted);font-size:11px}.launch-area kbd{font-size:10px;letter-spacing:.02em;border:1px solid #546044;border-radius:3px;padding:2px 5px}.underbar{display:flex;justify-content:space-between;align-items:center;color:#7f9286;font-size:11px;margin-top:16px;gap:15px}.keyboard-guide{display:flex;gap:18px}.keyboard-guide span{display:flex;align-items:center;gap:6px}kbd{font:inherit}.keyboard-guide kbd{font-size:10px;color:#aab9a9;border:1px solid #34443b;padding:1px 5px;border-radius:3px}.underbar a,.text-button{font-size:11px;color:#b5c3ad;text-decoration:none;background:none;border:0;padding:0}.underbar a:hover,.text-button:hover{color:var(--accent)}.underbar-right{display:flex;gap:18px;align-items:center}.modal-scrim{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:#030b0bd9;backdrop-filter:blur(14px);padding:20px}.audio-modal,.help-modal,.pause-modal{position:relative;background:linear-gradient(145deg,#24332d,#111c1e);border:1px solid #59634a;border-radius:14px;max-width:560px;width:100%;max-height:90dvh;overflow:auto;padding:32px;box-shadow:0 35px 120px #0008}.modal-close{position:absolute;right:20px;top:20px;width:34px;height:34px;font-size:22px}.modal-head h2,.help-modal h2,.pause-modal h2{font:40px/1.1 var(--font-display);letter-spacing:.01em;margin:12px 0}.k-body,.mix-note,.help-modal p,.pause-modal p{color:#b5c3ad;font-size:14px}.mix-strip{border-top:1px solid #3e4c3d;padding:13px 0;display:grid;grid-template-columns:1fr auto;gap:8px}.mix-name{font-size:12px;letter-spacing:.1em;margin:0}.mix-note{font-size:12px;margin:4px 0}.mix-switch{align-self:start;padding:4px 9px;font-size:11px}.mix-switch[aria-checked=true]{color:var(--accent);border-color:#82985d}.mix-fader-row{grid-column:1/-1;display:flex;gap:15px}.mix-fader{flex:1;width:100%}.mix-level{font-size:12px;color:#b7c5a8;width:24px}.modal-foot{border-top:1px solid #3e4c3d;padding-top:18px;display:flex;justify-content:space-between;gap:15px}.modal-foot button{font-size:12px;padding:10px 15px}.help-steps{display:grid;gap:20px;margin:28px 0}.help-step{display:flex;gap:17px}.help-step>span{border:1px solid #64744d;border-radius:50%;width:28px;height:28px;flex-shrink:0;display:grid;place-items:center;color:var(--accent);font-size:12px}.help-step strong{font-size:14px}.help-step p{margin:4px 0 0}.pause-modal{text-align:center}.pause-modal .primary-control{margin:15px 0;min-width:200px}.pause-modal .text-button{display:block;margin:6px auto}.result-copy h2{font-size:clamp(42px,6vw,82px)}.result-copy .lede{font-size:25px!important;line-height:1.35;max-width:560px;color:#e6ecda;margin:0 0 20px}.result-score{font:42px/1.2 ui-monospace,monospace;color:var(--accent);margin-bottom:15px}.result-stats{display:flex;gap:34px;margin:0 0 25px}.result-stats div{display:grid;gap:4px}.result-stats small{font-size:14px;letter-spacing:.08em;color:#b3c2a9}.result-stats strong{font-size:30px;font-weight:500}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.aim-touch{display:none}.reduced-label{display:flex;gap:10px;align-items:center;font-size:13px;color:#b6c4ab;margin:25px 0}.game-shell:fullscreen{border-radius:0;display:flex;flex-direction:column;background:var(--ink);justify-content:center}.game-shell:fullscreen .stage{max-height:calc(100dvh - 112px);aspect-ratio:1200/700;width:auto}.game-shell:fullscreen .control-deck{flex-shrink:0}.record{color:var(--accent);font-size:12px;margin-bottom:15px}
+@media(min-width:1600px){main{padding-top:36px}}
+@media(max-width:1100px){main{padding:20px}.control-deck{grid-template-columns:1fr auto;gap:18px;padding:16px 20px}.vitals{display:none}.ingredients{justify-content:center}.start-copy h2{font-size:7.5vw}.start-copy{top:21%}.start-copy .lede{font-size:13px;max-width:260px;margin-bottom:18px}.start-copy h2{margin:17px 0}.craving{top:20%;right:9%}.keyboard-guide{gap:10px}.volume-control{display:none}}
+@media(max-width:650px){main{padding:12px}.masthead{margin-bottom:12px;gap:8px}.brand{gap:8px}.brand-mark{width:28px;height:28px;font-size:18px}.brand h1{font-size:12px}.brand p{font-size:8px}.header-actions{gap:5px}.icon-button{height:34px;min-width:34px}.practice-label{display:none}.stage{aspect-ratio:4/5}.game-canvas{object-fit:cover;object-position:65% center}.start-copy{left:7%;top:34%;width:75%}.start-copy h2{font-size:53px;margin:14px 0 16px}.start-copy .lede{font-size:13px;max-width:235px;line-height:1.55}.section-tag{font-size:9px}.start-note{font-size:10px}.scene-caption{right:17px;bottom:18px}.scene-caption p{display:none}.scene-caption .subject-name{font-size:9px}.hud{top:16px;left:17px;right:17px}.hud-value{font-size:24px}.hud-label{font-size:9px}.score-group{gap:15px}.start-copy .primary-control{padding:12px 18px;font-size:13px}.control-deck{grid-template-columns:1fr;gap:12px;padding:12px}.ingredients{gap:6px}.ingredient{flex:1;min-width:0;gap:0;padding:6px 4px}.item-art{width:40px;height:40px}.ingredient-name{font-size:11px}.ingredient-desc{font-size:8px}.launch-area{justify-content:space-between}.launch-area .primary-control{height:44px;min-width:140px;padding:8px 18px}.aim-touch{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px}.aim-touch input{width:100%;max-width:115px}.keyboard-guide{display:none}.underbar{font-size:9px;margin-top:12px;align-items:flex-start}.underbar-right{gap:9px}.underbar-right .text-button{font-size:10px}.craving{top:20%;right:8%;padding:6px 10px}.craving strong{font-size:12px}.craving small{font-size:8px}.mutation-banner{top:78px;min-width:225px;padding:7px 10px}.mutation-banner strong{font-size:12px}.mutation-banner small{font-size:10px}.live-caption{left:15px;right:15px;bottom:15px}.hint{font-size:10px;padding:7px 9px;max-width:85%}.live-caption .shift-phase{display:none}.result-copy{top:30%;width:86%}.result-copy h2{font-size:48px}.result-stats{gap:17px}.result-score{font-size:32px}.result-copy .lede{margin-bottom:12px}.audio-modal,.help-modal,.pause-modal{padding:24px}.help-modal h2{font-size:34px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Review pass: one entry action, legible controls, face-clear HUD and viewport fit. */
+@media(min-width:651px){main{max-width:min(1536px,calc((100dvh - 215px)*1.7143 + 84px));min-width:720px;padding-top:20px}.masthead{margin-bottom:16px}.stage{container-type:inline-size}.start-copy h2{font-size:clamp(48px,8cqw,100px)}.start-copy{top:21%}.start-copy .lede{font-size:14px}.control-deck{padding:16px 22px;grid-template-columns:minmax(120px,1fr) auto minmax(130px,1fr);gap:18px}.ingredient{min-width:120px}.item-art{width:48px;height:48px}.ingredient-name{font-size:14px}.ingredient-desc{font-size:11px}.hud-label{font-size:12px}.hud{top:22px}.vital-row{font-size:12px}.craving{left:28px;right:auto;top:125px}.craving small{font-size:11px}.craving strong{font-size:15px}.craving:after{display:none}.keyboard-guide{font-size:12px}.keyboard-guide kbd{font-size:11px}.underbar-right{font-size:11px}.hint{font-size:13px}.live-caption .shift-phase{font-size:11px}.scene-caption{bottom:22px}.start-copy .section-tag{font-size:12px}.start-note{font-size:12px}}
+.preflight{padding:13px 25px;min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #3d493c;background:#14201e}.preflight>span{font-size:12px;letter-spacing:.12em;color:var(--accent)}.preflight-foods{display:flex;align-items:center;gap:4px}.preflight-foods .item-art{width:42px;height:42px}.preflight-foods p{font-size:12px;color:#adbea5;margin-left:10px}.preflight .text-button{font-size:12px}.keyboard-guide.inactive{visibility:hidden}.launch-button{position:relative;overflow:hidden}.launch-button:disabled{opacity:.8;background:#586547;border-color:#586547}/* The reload is a FILL, not a word. The button used to read "Reloading" while
+   busy, and a player firing on every cooldown is in the ready state 2.2% of the
+   time — so the most prominent control in the frame read "Reloading" for the
+   whole shift, and four critics running read it as a broken gun. The label names
+   the action and stays put; the fill says when. A 3px hairline was invisible at
+   960px, so the fill sweeps the whole button. */
+/* The reload is an inset bar along the bottom that FILLS. It is never a mask
+   over the button's face: the previous version covered the whole face at zero
+   charge, which is the instant after every shot, so the control spent most of
+   a shift dark olive with grey text and a critic read it as disabled in five
+   of six frames. The face stays bright accent at all times. */
+/* The charge bar is tall enough to survive the downscale. At 7px it was 3px at
+   960 and a critic called the control "pixel-identical across all six frames" —
+   correct: nothing it did was visible at the resolution it is judged at. The
+   face stays bright; the bar is 14px and dark against it, and it retreats. */
+/* A full-height wipe across the face, not a bar on the bottom edge. The button
+   sits at the very bottom of the frame, so a 14px strip on its bottom edge was
+   clipped by the viewport — a critic found it "present only as a sliver", which
+   is the third time this control has been correct in code and absent from the
+   picture. A wipe is 28px tall, cannot be cropped, and reads as filling. */
+.launch-button:disabled:after{content:'';position:absolute;inset:0;background:#2f4026;opacity:.85}
+.launch-button:disabled:before{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--reload);background:var(--accent);z-index:1}
+/* Charging, never disabled-looking. Removing the word "Reloading" left the
+   greyed STYLING, and a critic found the pill dimmed on the frame immediately
+   before the player starved: "a fire button that goes grey while the player is
+   dying is indistinguishable from the game having stopped accepting input."
+   The button keeps its full brightness and its colour at all times; the fill
+   sweeping across it is the only thing that changes. A charging thing fills. A
+   dead thing dims. It must never do the second. */
+.launch-button:disabled{opacity:1;background:var(--accent);border-color:var(--accent);color:#1b2519}
+.launch-button>*{position:relative;z-index:1}
+@media(min-width:651px) and (max-width:1000px){.vitals{display:grid}.ingredient{min-width:108px;padding-right:8px}.item-art{width:40px;height:40px}.ingredient-name{font-size:12px}.ingredient-desc{font-size:10px}.control-deck{gap:12px}.launch-area .primary-control{min-width:125px;padding:12px;gap:8px}.underbar-right>span{max-width:160px}.keyboard-guide{gap:8px}.brand p{display:none}.start-copy .lede{font-size:13px}.start-copy h2{margin:16px 0}.start-copy .primary-control{padding:11px 18px}}
+@media(max-width:650px){.stage{aspect-ratio:6/5}.start-copy{top:31%;left:6%;width:62%}.start-copy h2{font-size:clamp(36px,9vw,54px);margin:12px 0}.start-copy .lede{font-size:12px;line-height:1.4;max-width:200px;margin-bottom:14px}.start-copy .primary-control{padding:10px 14px;font-size:12px}.start-copy .section-tag{font-size:8px}.start-note{display:none}.scene-caption{display:none}.preflight{padding:10px 13px;gap:8px;min-height:58px}.preflight>span{font-size:9px;letter-spacing:.06em}.preflight-foods .item-art{width:30px;height:30px}.preflight-foods p{display:none}.preflight .text-button{font-size:11px}.hud-value{font-size:22px}.vitals{display:grid;grid-template-columns:1fr 1fr;max-width:none;gap:20px}.vital-row{font-size:10px;margin-bottom:4px}.ingredients .item-art{width:40px;height:40px}.ingredient-name{font-size:12px}.ingredient-desc{font-size:9px}.ingredient{min-height:55px}.control-deck{gap:10px}.craving{left:17px;right:auto;top:75px;padding:7px 10px}.craving:after{display:none}.craving strong{font-size:12px}.craving small{font-size:9px}.mutation-banner{top:auto;bottom:55px;min-width:230px}.mutation-banner small{font-size:11px}.live-caption{bottom:12px}.hint{font-size:10px}.result-copy{top:27%;width:80%}.result-copy h2{font-size:37px}.result-copy .lede{font-size:11px;margin:8px 0}.result-score{font-size:25px;margin-bottom:8px}.result-stats{gap:18px;margin-bottom:13px}.result-stats small{font-size:8px}.result-stats strong{font-size:14px}.record{font-size:10px;margin-bottom:6px}.header-actions .icon-button{min-width:40px;height:40px}.brand p{display:none}.brand h1{font-size:12px}.underbar-right{flex-wrap:wrap}.underbar{min-height:26px}}
+
+.serving-pips{display:flex;gap:5px;margin-left:8px;align-items:center}.serving-pips i{width:11px;height:11px;border:2px solid rgba(150,176,128,.55);border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.45)}.serving-pips i.filled{background:var(--accent);border-color:var(--accent);box-shadow:0 0 7px rgba(168,224,96,.75)}
+@media(max-width:650px){.stage{aspect-ratio:3/2}.start-copy{top:31%}.start-copy .lede{display:none}.start-copy h2{font-size:clamp(35px,8.8vw,50px);margin:9px 0 15px}.result-copy{top:25%}.result-copy h2{font-size:31px;margin:8px 0}.result-copy .lede{display:block;font-size:10px;line-height:1.3;max-width:195px}.result-stats{gap:14px;margin-bottom:10px}.result-score{font-size:22px;margin-bottom:5px}.result-copy .section-tag{font-size:8px}.result-copy .primary-control{padding:8px 13px}.craving{top:67px;padding:5px 8px}.craving .item-art{width:29px;height:29px}.craving strong{font-size:11px}.craving small{font-size:8px}.craving .serving-pips{display:none}.mutation-banner{bottom:42px;padding:6px 9px}.mutation-banner strong{font-size:11px}.mutation-banner small{font-size:10px}.live-caption{bottom:9px}.hint{font-size:9px;padding:5px 8px}.hud{top:13px}.hud-label{font-size:8px}.hud-value{font-size:20px}}
+@media(min-width:651px){main{min-width:0}}
+@media(min-width:651px) and (max-width:800px){.control-deck{grid-template-columns:1fr auto}.vitals{grid-column:1/-1;grid-template-columns:1fr 1fr;max-width:none}.underbar{flex-wrap:wrap}.start-copy .lede{font-size:12px}.start-note{font-size:10px}.start-copy .primary-control{font-size:12px}.header-actions{gap:5px}.practice-label{font-size:10px;margin-right:4px}}
+@media(max-width:650px){.stage.is-result{aspect-ratio:auto}.stage.is-result .game-canvas{position:absolute;inset:0;width:100%;height:auto;aspect-ratio:3/2}.stage.is-result .result-copy{position:relative;left:0;top:0;width:100%;margin-top:62%;padding:20px;background:linear-gradient(#12201eee,#14201e)}.stage.is-result .result-copy h2{font-size:38px;line-height:.98;margin:12px 0}.stage.is-result .result-copy .lede{font-size:13px;max-width:100%;margin:12px 0}.stage.is-result .result-stats small{font-size:10px}.stage.is-result .result-stats strong{font-size:18px}.stage.is-result .result-score{font-size:30px}.stage.is-result .result-stats{margin:16px 0}.stage.is-result .primary-control{padding:12px 18px;font-size:14px}.stage.is-result .result-copy .section-tag{font-size:10px}}
+
+.result-sub{font-size:13px;letter-spacing:.05em;color:#b9c8ab;margin:-8px 0 16px}
+
+.trait-stack{position:absolute;top:22px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:8px;pointer-events:none}
+.trait-chip{display:flex;align-items:center;gap:9px;background:#0e1c1aee;border:1px solid #8a9a72aa;border-radius:7px;padding:6px 12px 6px 6px;box-shadow:0 5px 26px #0005;max-width:280px}
+.trait-chip .item-art{width:30px;height:30px}
+.trait-chip strong{display:block;font-size:13px;color:var(--accent);line-height:1.25}
+.trait-chip small{display:block;font-size:11px;color:#c3cfb6;line-height:1.3}
+.trait-chip em{font-style:normal;font:600 15px ui-monospace,monospace;color:#f0ffc2;margin-left:4px}
+.trait-chip.pepper{border-color:#ff6a2eaa}.trait-chip.pepper strong{color:var(--orange)}
+.trait-chip.balloon{border-color:#9be9dfaa}.trait-chip.balloon strong{color:#9be9df}
+@media(max-width:1100px){.trait-chip small{display:none}.trait-chip{max-width:none;padding:5px 9px 5px 5px}}
+@media(max-width:650px){.trait-stack{top:auto;bottom:52px;gap:5px}.trait-chip .item-art{width:22px;height:22px}.trait-chip strong{font-size:11px}}
+
+/* Review pass: the mutations are read off the creature now, so the chips are a
+   compact index rather than the primary signal, and the coach line is legible
+   at stream resolution. */
+.trait-chip small{display:none}
+.trait-chip{padding:5px 10px 5px 5px;gap:7px}
+.trait-chip .item-art{width:26px;height:26px}
+.trait-chip strong{font-size:12px}
+.trait-stack{top:16px;gap:6px}
+.hint{font-size:15px;padding:11px 16px}
+.craving{display:none}
+@media(max-width:650px){.hint{font-size:12px;padding:7px 10px}}
+
+/* The mutation chips were ~8px at stream scale. They are an index for the
+   body cues, but an index nobody can read is not one. */
+.trait-chip strong{font-size:15px;letter-spacing:.01em}
+.trait-chip em{font-size:18px}
+.trait-chip .item-art{width:32px;height:32px}
+.trait-chip{padding:7px 13px 7px 6px}
+@media(max-width:650px){.trait-chip strong{font-size:12px}.trait-chip em{font-size:14px}}
+
+.result-cause{font:700 clamp(26px,3.1vw,40px)/1.1 var(--font-display);letter-spacing:.01em;color:#ff9c72;margin:0 0 14px;text-shadow:0 3px 18px #0006}
+@media(max-width:650px){.result-cause{font-size:22px;margin-bottom:10px}}
+.shift-phase.brink{color:#ff8a6a!important;font-weight:700}
+
+/* FEAST stage 2: the creature is the HUD. Score big on the left, time on the
+   right, three chips that light when a level lands, and nothing else in React. */
+.hud .hud-value.score{font-size:52px;line-height:1;letter-spacing:-.05em;color:#f1ffc8}
+.hud-timer .hud-value{font-size:40px}
+.trait-chip{position:relative;padding:8px 14px 8px 7px}
+.trait-chip strong{font-size:16px}
+.trait-chip em{font-size:20px}
+.trait-chip .item-art{width:34px;height:34px}
+.trait-chip.landed{animation:chip-land 1.4s ease-out 1}
+.trait-chip.metal{border-color:#ffc94daa}.trait-chip.metal strong{color:#ffc94d}
+@keyframes chip-land{0%{box-shadow:0 0 0 0 rgba(241,255,200,.9),0 5px 26px #0005;transform:translateY(0) scale(1.18);filter:brightness(1.8)}35%{filter:brightness(1.4)}100%{box-shadow:0 0 0 18px rgba(241,255,200,0),0 5px 26px #0005;transform:scale(1);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.trait-chip.landed{animation:none}}
+.keyboard-guide{gap:22px}
+.keyboard-guide span{white-space:nowrap}
+.result-stats strong{font-variant-numeric:tabular-nums}
+/* The chips sit left of centre: at the size cap the rules put the mouth near
+   the top of the frame and the eyes were under the chips. */
+.trait-stack{left:36%;transform:translateX(-50%)}
+
+/* FEAST stage 4: the snacks are tokens. The plate is the span, in the game's
+   palette; the mark is the img inside it, drawn as delivered — no tint, no
+   blend, no squash. Bitcoin's own mark is a coin, so its plate is a dark rim;
+   Ether's grey Ξ sits on a pale plate; HEMI's on dark enamel with an orange
+   rim, and the stand-in H (until the kit file lands) is a plain orange disc. */
+.item-art img{display:block;width:64%;height:64%;object-fit:contain;pointer-events:none}
+.item-art.metal{background:radial-gradient(circle at 35% 30%,#3a2a12,#120c05);border-color:#2a1d0b}.item-art.metal img{width:92%;height:92%}
+.item-art.balloon{background:radial-gradient(circle at 35% 30%,#f3f6fa,#aeb9c8);border-color:#5b6878}
+.item-art.pepper{background:radial-gradient(circle at 35% 30%,#2b1a10,#0e0805);border-color:#f26a1f}.item-art.pepper img{width:72%;height:72%}
+.item-art{container-type:inline-size}.item-art.pepper b{display:grid;place-items:center;width:86%;height:86%;border-radius:50%;background:#f26a1f;color:#fff;font:700 58cqw/1 var(--font-display);letter-spacing:0}
+.preflight-foods .item-art+.item-art{margin-left:2px}
+.preflight-foods>div{margin-left:10px}.preflight-foods>div p{margin:0}.preflight-foods .diet-line{color:#dded92;font-size:12px;margin-top:2px}
+.result-joke{font:600 clamp(15px,1.5vw,20px)/1.2 ui-monospace,monospace;letter-spacing:.06em;color:#dded92;margin:-6px 0 14px}
+@media(max-width:650px){.result-joke{font-size:12px;margin:-4px 0 8px}}
+/* Press E: a caption in the canvas's own display face, in the caption slot while playing and low on the left otherwise. */
+.press-e{position:absolute;z-index:4;pointer-events:none;white-space:nowrap;font:700 clamp(22px,3.4vw,66px)/1 Impact,'Arial Black','DejaVu Sans Condensed','Helvetica Neue',Arial,sans-serif;letter-spacing:.01em;color:#f1ffc8;text-shadow:0 0 2px #040a09,0 3px 0 #040a09,3px 0 0 #040a09,-3px 0 0 #040a09,0 -3px 0 #040a09,0 8px 22px #000b;animation:press-e-pop 1.7s ease-out forwards}
+.press-e.in-play{left:22%;top:50%;transform:translate(-50%,-50%)}
+.press-e.idle{left:6%;bottom:7%}
+.press-e.still{animation:press-e-fade 1.7s linear forwards}
+@keyframes press-e-pop{0%{opacity:0;scale:.6}8%{opacity:1;scale:1.08}16%{scale:1}72%{opacity:1}100%{opacity:0}}
+@keyframes press-e-fade{0%,72%{opacity:1}100%{opacity:0}}
+/* Halloween: Munch's costume under the specimen line, and the title's accent goes pumpkin. */
+.scene-caption .costume{color:#f4a46a}
+.stage.halloween .start-copy h2 span,.stage.halloween .section-tag{color:#f4934a}
+.stage.halloween .section-tag:before{background:#f4934a}
+/* The epoch report's footnote under the restart button. */
+.quarters{font-size:14px;letter-spacing:.03em;color:#aebba9;margin:12px 0 0}
+/* A new best is the ding-ding-ding moment: big enough to read on a shared screen. */
+.result-copy .record{font:700 clamp(15px,1.5vw,22px)/1.2 ui-monospace,monospace;letter-spacing:.04em;margin-bottom:16px}
+/* The restart arms a few seconds after the result lands (RESTART_LOCK_MS in page.tsx): until then the action is neither clickable nor in the tab order. */
+.result-actions{opacity:0;pointer-events:none;transition:opacity .7s ease}.result-actions.is-armed{opacity:1;pointer-events:auto}
+@media(max-width:650px){.quarters{font-size:10px;margin-top:6px}}
+/* Scripture: the hosts' words, cited as book chapter:verse. */
+.verse{margin:0}
+.verse blockquote{margin:0;font:italic 400 15px/1.45 Georgia,'Times New Roman',serif;color:#d8decb}
+.verse figcaption{margin-top:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#93a291}
+.verse figcaption b{color:var(--accent);font-weight:700;margin-right:6px;letter-spacing:.08em}
+.title-verse{margin-top:26px;max-width:340px;padding-left:13px;border-left:2px solid #dded924d}
+.stage.halloween .title-verse{border-left-color:#f4934a66}
+.stage.halloween .title-verse figcaption b{color:#f4934a}
+.help-modal .epigraph{margin:4px 0 18px;padding-left:13px;border-left:2px solid #dded924d}
+.help-modal cite,.record cite{font-style:normal;font-weight:700;letter-spacing:.06em;color:#93a291}
+.record cite{font-size:.62em;margin-left:6px;text-transform:uppercase}
+.pause-modal .verse{margin:0 auto 6px;max-width:380px}
+.pause-modal .verse blockquote{font-size:16px}
+.sound-verse{margin:6px 0 16px;padding-left:13px;border-left:2px solid #dded924d}
+@media(max-width:1000px){.title-verse{display:none}}
+@media(max-width:650px){.result-copy .restart-verse{display:none}}
+/*
+ * The epoch report scales with the stage, not the window. In px and vw it ran
+ * off the bottom of the stage — the restart button was clipped at 1366x768,
+ * and on a new best at 1920x1080. In container units the whole report is a
+ * fixed fraction of the stage, which keeps one aspect ratio, so if it fits at
+ * one size it fits at every size. The verse sits beside the button.
+ */
+@media(min-width:651px){
+  .stage .result-copy{top:max(13%,98px);width:47%}
+  .stage .result-copy .section-tag{font-size:max(9px,.8cqw)}
+  .stage .result-copy h2{font-size:5.2cqw;margin:1.1cqw 0 1.3cqw}
+  .stage .result-copy .result-cause{font-size:2.3cqw;margin:0 0 .8cqw}
+  .stage .result-copy .result-joke{font-size:max(11px,1.15cqw);margin:0 0 .9cqw}
+  .stage .result-copy .lede{font-size:max(12px,1.45cqw)!important;line-height:1.3;margin:0 0 1.1cqw;max-width:40cqw}
+  .stage .result-copy .result-score{font-size:2.5cqw;margin-bottom:.3cqw}
+  .stage .result-copy .result-sub{font-size:max(10px,.9cqw)}
+  .stage .result-copy .record{font-size:max(11px,1.15cqw);margin:.6cqw 0 .9cqw;white-space:nowrap}
+  .stage .result-copy .result-stats{gap:2.2cqw;margin:0 0 1.4cqw}
+  .stage .result-copy .result-stats small{font-size:max(9px,.85cqw)}
+  .stage .result-copy .result-stats strong{font-size:1.9cqw}
+  .stage .result-copy .result-actions{display:flex;align-items:center;gap:1.6cqw}
+  .stage .result-copy .result-actions .primary-control{flex-shrink:0;padding:.95cqw 1.6cqw;font-size:max(12px,1.05cqw);gap:1.6cqw}
+  .stage .result-copy .restart-verse{margin:0;max-width:24cqw}
+  .stage .result-copy .restart-verse blockquote{font-size:max(11px,.95cqw)}
+  .stage .result-copy .restart-verse figcaption{font-size:max(8px,.68cqw);margin-top:.35cqw}
+}
+
+/* ---- chain / ledger ----
+ * The ledger panel on the epoch report (app/components/Ledger.tsx) and the
+ * TOP KEEPERS strip on the title (TopKeepers.tsx). The panel is one row so
+ * the report keeps fitting the stage: it sits between the stats and
+ * "Ape back in" and is sized in cqw like the rest of the report. On a phone
+ * it stacks. The File button is outlined, not filled: "Ape back in" stays the
+ * report's one filled control. */
+.ledger{margin:0 0 1.4cqw;font-size:max(11px,1cqw);line-height:1.35;color:#c9d4bd}
+.ledger-row{display:flex;align-items:center;flex-wrap:wrap;gap:.5cqw 1.3cqw;min-height:2.6cqw}
+.ledger-off{margin:0;color:#8c9a8c;font-size:max(11px,.95cqw);letter-spacing:.02em}
+.ledger-button{background:#13201f;border:1px solid var(--accent);color:var(--accent);padding:.7cqw 1.4cqw;font-size:max(12px,1cqw);border-radius:5px;white-space:nowrap;flex-shrink:0}
+.ledger-button:hover{background:#1f2f27;border-color:#f0ffc2;color:#f0ffc2}
+.ledger-gas{font-size:max(10px,.8cqw);color:#8fa08f;letter-spacing:.01em;flex:1 1 14cqw;min-width:14cqw;max-width:34cqw}
+.is-filed .ledger-link:before,.is-filed .ledger-best:before{content:'· ';color:#8c9a8c;margin-right:.3em}
+.is-filed .ledger-line.ledger-link:before{content:none}
+.ledger-caption{font:700 max(12px,1.25cqw)/1 var(--font-display);letter-spacing:.05em;color:var(--accent);text-transform:uppercase;white-space:nowrap}
+.is-failed .ledger-caption{color:#ff9c72}
+.is-confirming .ledger-caption{color:var(--orange)}
+.ledger-line{color:#dfe6d3;white-space:nowrap}
+/* A failure's reason wraps inside its own box so Retry and Skip stay on the caption's line (e2e finding 5). */
+.is-failed .ledger-line{white-space:normal;flex:1 1 10cqw;min-width:10cqw;max-width:none}
+.is-failed .ledger-retry,.is-failed .ledger-action,.is-failed .ledger-link{flex-shrink:0}
+.ledger-link{color:var(--accent);text-decoration:none;white-space:nowrap;border-bottom:1px solid #dded924d}
+.ledger-link:hover{border-bottom-color:var(--accent)}
+.ledger-best{color:#f1ffc8;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Stage 2: the verified contribution and the pile it went into, on its own line under the filed row. */
+.ledger-pile{flex:0 0 100%;color:#b9c8ab;font-size:max(10px,.9cqw);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger-action{font-size:max(11px,.9cqw);color:#aebba9}
+.ledger-retry{padding:.45cqw 1cqw;font-size:max(11px,.9cqw)}
+.is-connecting .ledger-caption,.is-attesting .ledger-caption,.is-signing .ledger-caption,.is-sending .ledger-caption,.is-confirming .ledger-caption{animation:ledger-pulse 1.6s ease-in-out infinite}
+@keyframes ledger-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@media(prefers-reduced-motion:reduce){.ledger-caption{animation:none!important}}
+/* The title: a filing from before a reload, then the top five. The board is
+ * one flowing row (title first): one line at 1920, three at 1366. The stage is
+ * not shrunk to pay for it — a shorter stage clips the title verse — so the
+ * strip is the one thing on the title that grew (by about 40px at 1366). */
+.last-filing{margin:3px 0 0!important;font-size:12px;color:#dded92}
+.last-filing .ledger-link{margin-left:6px;font-size:11px}
+.top-keepers{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 12px;margin-top:4px}
+.top-keepers-title{font-size:10px;letter-spacing:.14em;font-weight:700;color:#b9c6ae;white-space:nowrap}
+.top-keepers-title em{font-style:normal;font-weight:400;letter-spacing:.02em;color:#8c9a8c;margin-left:6px;text-transform:none}
+.top-keepers ol{list-style:none;margin:0;padding:0;display:contents}
+.top-keepers li{display:flex;align-items:baseline;gap:5px;font:500 11px/1.35 ui-monospace,monospace;color:#c9d4bd;white-space:nowrap}
+.top-keepers li b{font-weight:700;color:var(--accent);font-size:9px}
+.top-keepers .keeper-score{color:#f1ffc8;font-weight:600;font-variant-numeric:tabular-nums}
+.top-keepers .keeper-uptime{color:#9daaa2;font-variant-numeric:tabular-nums}
+.preflight .text-button{white-space:nowrap}
+/* Stage 2 (docs/CHAIN.md §10.4): the title's line under the diet line — two captions in the caption voice, each unbreakable,
+ * one line when they fit — and the tag under a chip's name for the level it came in with. */
+.inherited-line{margin:1px 0 0!important;font:700 11px/1.4 'Helvetica Neue',Arial,sans-serif;letter-spacing:.08em;color:#f1ffc8}
+.inherited-line span{white-space:nowrap}
+.inherited-line span+span{margin-left:6px}
+.trait-inherited{display:block;font:700 9px/1.1 'Helvetica Neue',Arial,sans-serif;font-style:normal;letter-spacing:.18em;color:#9daaa2;margin-top:3px}
+/* The strip's four possible lines (prose, diet, inherited, resume) and the two-row board must leave the underbar above the
+ * fold at 1366×768 (e2e finding 4). Tighter leading and gaps, less padding; and the underbar itself: on the title the keyboard
+ * guide is invisible but still took its width, which squeezed the right side into three lines. It collapses instead. */
+.preflight-foods>div p{line-height:1.3}
+.preflight{padding:8px 25px;min-height:70px}
+.preflight-foods .diet-line{margin-top:0}
+.last-filing{margin-top:0!important;line-height:1.3}
+.top-keepers{margin-top:2px;gap:0 12px}
+.top-keepers li{line-height:1.25}
+.underbar .keyboard-guide.inactive{flex:1 1 0;min-width:0;overflow:hidden}
+.underbar:has(.keyboard-guide.inactive) .underbar-right{flex-shrink:0;white-space:nowrap}
+@media(min-width:651px) and (max-height:800px){main{padding-top:12px}.masthead{margin-bottom:10px}}
+@media(max-width:1100px){.top-keepers li{font-size:10px}.top-keepers{gap:0 9px}}
+@media(max-width:650px){
+  /* The strip hides its prose on a phone (the diet line with it); the board goes with the prose. */
+  .top-keepers,.last-filing,.inherited-line{display:none}
+  .preflight{padding:10px 13px;min-height:58px}
+  .ledger{margin:0 0 14px;font-size:12px}
+  /* Stacked: the caption and the line each take the row; links and actions sit together under them. */
+  .ledger-row{gap:6px 14px;min-height:0}
+  .ledger-caption,.ledger-line,.ledger-gas,.is-failed .ledger-line{flex:0 0 100%;min-width:0}
+  .ledger-button{padding:9px 14px;font-size:13px}
+  .ledger-gas{font-size:10px;max-width:none;min-width:0}
+  .ledger-caption{font-size:16px}
+  .ledger-line,.is-failed .ledger-line{white-space:normal;max-width:none}
+  .ledger-pile{font-size:11px;white-space:normal}
+  .is-filed .ledger-link:before,.is-filed .ledger-best:before{content:none}
+  .ledger-action{font-size:11px}
+  .ledger-retry{padding:6px 12px;font-size:12px}
+  .ledger-off{font-size:11px}
+  .ledger-line.ledger-link{flex:0 0 auto;max-width:100%}
+  .trait-inherited{font-size:7px;margin-top:1px}
+  /* The phone put the chips at the bottom of the stage (bottom:52px), then an unscoped review rule set top:16px as well:
+   * with both, the stack stretched from top to bottom and each chip became a 180px box over the score. Bottom placement stands. */
+  .trait-stack{top:auto;align-items:flex-end}
+}
+
+/* ---- ledger page (/ledger) ---- */
+.ledger-page{--btc:#ffc94d;--eth:#9be9df;--hemi:#ff6a2e;max-width:1240px;padding-bottom:48px}
+.ledger-page .brand{color:inherit;text-decoration:none}
+.ledger-back{font-size:12px;letter-spacing:.08em;color:#b5c3ad;text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:9px 14px;background:#1b2828;transition:border-color .18s,background .18s}
+.ledger-back:hover{border-color:#a9bb94;background:#263733}
+.ledger-hero{padding:34px 0 26px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.ledger-hero h2{font:400 clamp(44px,6.4vw,92px)/.9 var(--font-display);letter-spacing:-.01em;text-transform:uppercase;margin:16px 0 18px}
+.ledger-hero h2 span{color:var(--accent)}
+.ledger-lede{font-size:17px;line-height:1.55;color:#c9d0bf;max-width:560px;margin:0 0 18px}
+.ledger-alltime{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin:0;font-size:13px;color:#c1c8b8}
+.ledger-alltime b{font-weight:600;color:var(--paper);letter-spacing:.02em}
+.ledger-note{color:var(--muted);font-size:14px;margin:18px 0}
+.ledger-h3{font-size:11px;letter-spacing:.17em;color:var(--accent);font-weight:700;margin:0 0 12px}
+.coin-count{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.coin-count i{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.coin-count.btc i{background:var(--btc)}.coin-count.eth i{background:var(--eth)}.coin-count.hemi i{background:var(--hemi)}
+
+.ledger-epochs{margin-bottom:34px}
+.ledger-epochs ol{list-style:none;margin:0;padding:0 0 10px;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(232px,calc((100% - 48px) / 5));gap:12px;overflow-x:auto;scroll-snap-type:x proximity}
+.ledger-epochs li{scroll-snap-align:start;display:flex}
+.epoch-card{all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;flex-direction:column;gap:8px;padding:14px 15px 15px;border:1px solid var(--line);border-radius:10px;background:var(--panel);min-height:100%;transition:border-color .18s,background .18s,transform .18s}
+.epoch-card:hover{border-color:#5b6a5c;background:#182729}
+.epoch-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.epoch-card[aria-pressed=true]{border-color:var(--accent);background:#1a2a24;box-shadow:inset 0 0 0 1px #dded9233}
+.epoch-card.is-now{background:linear-gradient(180deg,#1d2c25,var(--panel) 60%)}
+.epoch-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.epoch-card-head b{font:400 22px/1 var(--font-display);letter-spacing:.02em}
+.epoch-card-head em{font-style:normal;font-size:10px;letter-spacing:.16em;font-weight:700;color:var(--ink);background:var(--accent);border-radius:4px;padding:3px 6px}
+.epoch-card-span{font-size:11px;color:var(--muted);letter-spacing:.02em}
+.share-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:#0d1617;margin:2px 0}
+.share-bar i{display:block;height:100%}
+.share-bar i.btc{background:var(--btc)}.share-bar i.eth{background:var(--eth)}.share-bar i.hemi{background:var(--hemi)}
+.share-bar.is-empty{background:repeating-linear-gradient(90deg,#2a3633 0 6px,transparent 6px 10px)}
+.epoch-card-shares{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:#d6dccb;min-height:18px}
+.epoch-card-runs{font-size:12px;color:var(--muted)}
+.epoch-card-trait{display:grid;gap:1px;font-size:13px;color:#c9d0bf;border-top:1px solid #26332f;padding-top:7px}
+.epoch-card-trait small{font-size:9.5px;letter-spacing:.15em;color:#8f9c94;font-weight:700}
+.epoch-card-trait strong{color:var(--paper);font-weight:600}
+.epoch-card-trait span{color:var(--muted);font-size:12px}
+
+.ledger-board-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.ledger-board-head .ledger-h3{margin:0}
+.ledger-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.ledger-tabs button{font-size:12px;font-weight:600;padding:7px 12px;border-radius:999px;background:transparent;color:#c1c8b8}
+.ledger-tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.ledger-table-wrap{border:1px solid var(--line);border-radius:10px;overflow-x:auto;background:#101a1b}
+.ledger-table{width:100%;border-collapse:collapse;font-size:14px}
+.ledger-table th{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8f9c94;font-weight:700;text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ledger-table td{padding:11px 14px;border-bottom:1px solid #1f2b2a;white-space:nowrap}
+.ledger-table tbody tr:last-child td{border-bottom:0}
+.ledger-table tbody tr:hover td{background:#152223}
+.ledger-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ledger-table .rank{color:var(--muted);width:2.5em}
+.ledger-table tbody tr:first-child .rank{color:var(--accent);font-weight:700}
+.ledger-table .score{font-weight:600;color:var(--paper)}
+.ledger-table .keeper a,.ledger-table .keeper span{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#dfe5d4;text-decoration:none}
+.ledger-table .keeper a:hover{color:var(--accent)}
+.ledger-table .col-fed{display:flex;gap:12px}
+.ledger-table td.col-fed{display:table-cell}
+.ledger-table td.col-fed .coin-count+.coin-count{margin-left:12px}
+.ledger-table .col-proof a{font-size:12px;color:#b5c3ad;text-decoration:none;margin-right:12px}
+.ledger-table .col-proof a:hover{color:var(--accent)}
+.ledger-foot{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;margin-top:18px;font-size:12px;color:var(--muted)}
+.ledger-foot a{color:#b5c3ad;text-decoration:none}
+.ledger-foot a:hover{color:var(--accent)}
+.ledger-verify{flex-basis:100%;color:#7f8c85}
+.top-keepers-link{margin-left:10px;font-size:11px;color:#b5c3ad;text-decoration:none;letter-spacing:.04em;font-weight:400}
+.top-keepers-link:hover{color:var(--accent)}
+@media(max-width:720px){
+  .ledger-page{padding:18px 16px 36px}
+  .ledger-hero{padding:22px 0 20px}
+  .ledger-lede{font-size:15px}
+  .ledger-back{padding:7px 10px;font-size:11px}
+  .ledger-epochs ol{grid-auto-columns:78%}
+  .ledger-table{font-size:13px}
+  .ledger-table th,.ledger-table td{padding:10px 10px}
+  .ledger-table .col-uptime,.ledger-table .col-size,.ledger-table .col-epoch{display:none}
+  .ledger-table td.col-fed .coin-count+.coin-count{margin-left:8px}
+}
+@media(max-width:480px){
+  .ledger-table .col-fed{display:none}
+  .ledger-table td.col-fed{display:none}
+  .ledger-table .col-proof a{margin-right:8px}
+}
+/* When this epoch's pile closes (docs/CHAIN.md §7): after the diet line, a step quieter than it; as the inherited line's caption when there is no diet line. */
+.diet-line .diet-closes{color:#c9d4bd}
+.inherited-line .pile-closes{color:#c9d4bd;white-space:nowrap}
+.inherited-line span+.pile-closes{margin-left:6px}
+/* The inherited line's captions wrap only between themselves, and a wrapped caption starts flush left (no separator indent). */
+.inherited-line{display:flex;flex-wrap:wrap;column-gap:9px}
+.inherited-line span+span,.inherited-line span+.pile-closes{margin-left:0}

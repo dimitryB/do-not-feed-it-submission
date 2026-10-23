@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.next/
+.wrangler/
+.miniflare/
+artifacts/
+cache/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.DS_Store
+*.log
+
+# Secrets never leave the machine: only the documented templates are tracked.
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+ignition/deployments/
+ignition/parameters/*mainnet*.json
+
+# Harness output (the e2e and the cross-engine page write under docs/qa/).
+docs/qa/
+
+# Machine-specific production configuration (the example is safe to publish).
+wrangler.production.jsonc

@@ -1,0 +1,32 @@
+# Local Worker settings for `npm run dev` (docs/CHAIN.md section 11). Copy to `.dev.vars`; never commit it.
+# The Cloudflare Vite plugin reads `.dev.vars` from the repo root (the project has no wrangler.json,
+# so Wrangler resolves it against the working directory). Editing it restarts the dev server.
+
+# --- Hemi Mainnet (fill in after the deploy; see docs/CHAIN.md section 11) ---
+# The indexer's RPC; never echoed to browsers (a keyed endpoint is fine here).
+HEMI_RPC_URL=https://rpc.hemi.network/rpc
+DNFI_CHAIN_ID=43111
+DNFI_CONTRACT_ADDRESS=
+DNFI_VERIFIER_PRIVATE_KEY=
+# Required once the chain is on (deploy-registry prints it); the Worker reports itself disabled without it.
+DNFI_DEPLOY_BLOCK=
+# Optional: what `config.rpcUrl` tells browsers; default Hemi's public RPC.
+# DNFI_PUBLIC_RPC_URL=https://rpc.hemi.network/rpc
+# Optional: blocks behind the head the indexer stops at; default 16.
+# DNFI_CONFIRMATIONS=16
+# Optional: the contract's immutables, so tickets carry the right epoch before the indexer has run.
+# DNFI_GENESIS=
+# DNFI_EPOCH_SECONDS=86400
+# Optional: comma-separated fallback RPC URLs for the indexer.
+# HEMI_RPC_FALLBACKS=
+
+# --- Local end-to-end (scripts/chain-e2e.mjs writes exactly this, then puts your file back) ---
+# A `hardhat node` on 8545 (chainId 31337), FeedRegistry deployed by Hardhat account #0 with
+# account #1 as the verifier. The key below is Hardhat's public test key #1: no funds, no secret.
+# HEMI_RPC_URL=http://127.0.0.1:8545
+# DNFI_PUBLIC_RPC_URL=http://127.0.0.1:8545
+# DNFI_CHAIN_ID=31337
+# DNFI_CONTRACT_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+# DNFI_VERIFIER_PRIVATE_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+# DNFI_DEPLOY_BLOCK=1
+# DNFI_CONFIRMATIONS=0
