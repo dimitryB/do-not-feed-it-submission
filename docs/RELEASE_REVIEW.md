@@ -11,14 +11,15 @@ wallet filing, Worker request validation and rate limits, D1 races and
 persistence, indexer freshness, Solidity signatures and bounds, dependencies,
 deployment configuration, documentation, asset attribution, and the files
 selected for the initial Git commit. No unresolved critical or high code
-findings were identified in this review. Publishing the source does not deploy
-the site or spend funds on Hemi.
+findings in the game or server code were identified in this review. A remaining
+upstream advisory in development tooling is described below. Publishing the
+source does not deploy the site or spend funds on Hemi.
 
 ## Findings addressed before publication
 
 | Finding | Resolution |
 | --- | --- |
-| The initial dependency audit reported 32 affected packages: 1 critical, 14 high, 8 moderate and 9 low. | Updated Next.js, Vite, Cloudflare tooling and compatible transitive packages. Removed unused `drizzle-kit`. Added scoped patches for `vinext`'s image parser, Miniflare's image/HTTP dependencies and solc's temporary-file helper. The final full npm audit reports zero vulnerabilities. |
+| The initial dependency audit reported 32 affected packages: 1 critical, 14 high, 8 moderate and 9 low. | Updated Next.js, Vite, Cloudflare tooling and compatible transitive packages. Removed unused `drizzle-kit`. Added scoped patches for `vinext`'s image parser, Miniflare's image/HTTP dependencies and solc's temporary-file helper. The production audit is clean; the final full audit exposes the development-only Zod advisory described below. |
 | Releasing a shot and pressing the hatch during the same rules tick could accept both inputs, although replay requires strictly increasing command ticks. | Inputs now apply and enter the trace atomically, admitting at most one accepted command per tick. Rejected inputs cannot mutate live state. |
 | The Launch button lacked keyboard/assistive activation; releasing outside the button or interrupting play could leave charging active. | Added Space charging, Enter and virtual-click activation, pointer capture, and charge cancellation on pause, blur and pointer cancellation. |
 | A bounded indexer refresh could report a partial history as fresh. | Catch-up status now persists with the snapshot and survives cached/leased responses until scanning reaches the confirmed head. |
@@ -27,6 +28,12 @@ the site or spend funds on Hemi.
 | Documentation linked omitted development notes and overstated resistance to seed searching. | Replaced stale references, explained disclosed seeds and ticket limits honestly, and marked live deployment as pending. |
 | Node's production preview supplies no Worker environment; chain configuration reads errored instead of reporting practice mode, and the page requested disabled world data. | The Worker entrypoint now gives the chain router an empty configuration when bindings are absent. The page reads world data only after configuration enables the chain. |
 | The local integration harness could leave a generated backup behind when no original environment file existed. | Epoch rewrites no longer back up generated test variables; four isolated filesystem scenarios check original-file restoration and recovery-backup handling. |
+
+The clean GitHub run also caught a production-only Zod advisory that the full
+audit did not report. `abitype` now uses its supported Zod 4 peer at patched
+version 4.6.6; tooling retains its compatible Zod 3 dependency. Both audit modes
+are checked before publication, and the development-only findings are retained
+in the report rather than hidden by the initial deduplication behavior.
 
 The deterministic simulation, game version, contract ABI and SQL migrations
 were preserved. The Solidity compiler is pinned to 0.8.28 so the alternate
@@ -55,13 +62,17 @@ solc-js build cannot silently drift from Hardhat's configured compiler.
   malformed and in-range tampered traces, duplicate filing, wrong-chain
   recovery, rate limiting/retry, the three-filings pile cap, ledger boards and
   next-epoch inheritance. Independent filing verification passes all 20 checks.
-- The full dependency audit reports zero vulnerabilities at review time.
+- The production dependency audit reports zero vulnerabilities. The full audit
+  reports 12 high affected development packages from one upstream Zod advisory,
+  with no critical, moderate or low findings after the updates.
 - The production client bundle contains no development inspection hook,
   verifier-private-key setting or documented test private keys.
 
 QA captures, local chain state and raw test logs stay in ignored local output.
 GitHub Actions repeats types, lint, application/contract tests, production build
-and the production dependency audit from a clean lockfile install.
+and the production dependency audit from a clean lockfile install. The
+production audit blocks high/critical findings; the full tooling audit reports
+the known upstream highs and blocks critical findings.
 
 ## Publication checks
 
@@ -77,6 +88,18 @@ output, contract artifacts, logs and QA captures. The existing MIT license,
 third-party notices, art provenance and quotation attribution are included.
 
 ## Remaining operational work and limits
+
+**Development tooling advisory:**
+[GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)
+affects Zod versions before 4.6.6 and concerns memory exhaustion from oversized
+validation inputs. Hardhat and its plugins still require Zod 3, including the
+current Hardhat 3.21.0 release checked during review. The installed tooling is
+used for local contract tests, configuration and deployment; it is not part of
+the browser or Worker bundle. There is no compatible upstream Zod 3 patch.
+Forcing Zod 4 globally would break tooling APIs; npm's suggested Hardhat 2
+downgrade would also require a contract-tooling migration. Preserve the tested
+tooling, use trusted local configuration/inputs, and update when upstream ships
+a compatible fix. This remains a disclosed development dependency risk.
 
 The README play URL and Hemi registry address are intentionally pending. Before
 submitting a live entry, deploy and verify the actual contract, configure and

@@ -54,6 +54,9 @@
   },
   "overrides": {
     "ws": "8.21.2",
+    "abitype": {
+      "zod": "4.6.6"
+    },
     "vinext": {
       "image-size": "2.0.4"
     },
