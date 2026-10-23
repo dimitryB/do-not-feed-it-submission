@@ -24,6 +24,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      - run: npm run build:pages
       - run: npm audit --omit=dev --audit-level=high
       # Hardhat still requires Zod 3; see docs/RELEASE_REVIEW.md for the
       # upstream high advisory. Report all tooling findings; block criticals.

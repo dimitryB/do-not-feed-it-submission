@@ -21,4 +21,4 @@ const deterministicRules = {
   },
 };
 
-export default defineConfig([...nextVitals, ...nextTs, deterministicRules, globalIgnores([".next/**", "dist/**", "build/**", "node_modules/**", "artifacts/**", "cache/**", "next-env.d.ts"])]);
+export default defineConfig([...nextVitals, ...nextTs, deterministicRules, globalIgnores([".next/**", ".wrangler/**", "dist/**", "build/**", "node_modules/**", "artifacts/**", "cache/**", "next-env.d.ts"])]);
