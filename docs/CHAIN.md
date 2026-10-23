@@ -5,8 +5,9 @@ interfaces the pieces share. This page is the contract between the Solidity,
 the Worker, the client and the tests; change it first, then the code.
 
 The contract, Worker, client and local test harness are implemented in this
-repository. Public site and Hemi Mainnet deployment are pending; the README's
-play link and contract address must be filled from an actual deployment.
+repository. The [public practice game](https://do-not-feed-it.pages.dev) is live
+on Cloudflare Pages. Hemi Mainnet contract deployment remains pending; record
+its address in the README after deployment and public verification.
 D-numbers (D183, …) are historical references to the development decision
 register, which is not included in this submission.
 
@@ -493,6 +494,14 @@ rules' own words for it.
 
 ## 11. Deployment
 
+The current [live game](https://do-not-feed-it.pages.dev) runs in practice mode
+on Cloudflare Pages, with [the ledger page](https://do-not-feed-it.pages.dev/ledger)
+showing that filing is disabled. Its deployment uses no D1 binding, verifier
+secret or contract settings. See [the practice deployment instructions](../README.md#deploy-the-practice-game)
+for Pages builds and uploads. Hemi contract deployment remains a separate step.
+
+The rest of this section describes the future onchain deployment.
+
 These commands are an operator guide. Publishing this repository does not
 deploy a contract or a site. Use Node.js and npm versions supported by
 `package.json`, a funded Hemi Mainnet deployer and a Cloudflare Workers paid
@@ -619,8 +628,9 @@ commit. Check the resulting `/api/chain/trace?runId=…` link and the leaderboar
 Keep backups of D1: the trace records are the public replay evidence, even
 though boards can be rebuilt from chain logs.
 
-Only after those public checks pass, replace the pending play URL and contract
-address in the README with the actual links and record the deployment commit.
+Only after those public checks pass, add the verified contract address to the
+README and update its deployment status and source commit. Keep the live play
+URL unless the hosting origin changes.
 The contest submission and any screenshots should refer to that same public
 build. If the chain remains disabled, the site is practice only and should be
 described that way.

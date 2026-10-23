@@ -49,7 +49,8 @@ solc-js build cannot silently drift from Hardhat's configured compiler.
 - Production builds pass with both the local configuration and an explicit
   dummy production configuration. Wrangler's upload dry run passes and retains
   the intended DB binding, compiled entrypoint, assets, chain variables and CPU
-  budget. No live deployment was performed.
+  budget. No live deployment was performed during the initial source review;
+  the subsequent practice deployment is recorded below.
 - Ten Chromium input/lifecycle checks pass, including keyboard launch,
   pointer release/cancellation, blur, pause, same-tick inputs and restart lock.
 - Ten additional checks pass against the final production build without
@@ -69,8 +70,9 @@ solc-js build cannot silently drift from Hardhat's configured compiler.
   verifier-private-key setting or documented test private keys.
 
 QA captures, local chain state and raw test logs stay in ignored local output.
-GitHub Actions repeats types, lint, application/contract tests, production build
-and the production dependency audit from a clean lockfile install. The
+GitHub Actions repeats types, lint, application/contract tests, production builds
+for both Workers and Pages, and the production dependency audit from a clean
+lockfile install. The
 production audit blocks high/critical findings; the full tooling audit reports
 the known upstream highs and blocks critical findings.
 
@@ -101,10 +103,11 @@ downgrade would also require a contract-tooling migration. Preserve the tested
 tooling, use trusted local configuration/inputs, and update when upstream ships
 a compatible fix. This remains a disclosed development dependency risk.
 
-The README play URL and Hemi registry address are intentionally pending. Before
-submitting a live entry, deploy and verify the actual contract, configure and
-migrate D1, set Worker secrets, publish the site and test a real filing/receipt
-and public replay from the deployed commit. Then replace those placeholders.
+The practice game is now live; the Hemi registry address remains pending.
+Before enabling onchain filing, deploy and verify the actual contract, configure
+and migrate D1, set verifier secrets, publish the configured backend and test a
+real filing/receipt and public replay from the deployed commit. Then record the
+registry address in the README.
 See [CHAIN.md, Deployment](CHAIN.md#11-deployment).
 
 The verifier remains a trusted server key; owner rotation/pause is its recovery
@@ -118,3 +121,19 @@ live Hemi RPC availability or production performance under load.
 
 No official contest rule document was supplied with this snapshot, so this
 review does not confirm eligibility, deadlines or permission requirements.
+
+## Practice deployment follow-up
+
+Deployed October 23, 2026 to [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev)
+with source commit `a7a3749dc18b46ace3b156def27b0cc215832619`.
+The [ledger](https://do-not-feed-it.pages.dev/ledger) currently reports disabled
+filing. The Pages Advanced Mode package preserves server rendering and API
+routes and contains no D1 binding, verifier key or contract settings.
+
+All 11 live browser checks pass without request adapters or development hooks:
+art, gameplay, input, pause/resume, modal focus, ledger navigation, social
+metadata, and name-free URLs. No console, page or network errors, chain POSTs,
+or disabled world reads occurred. All 24 live endpoint/security checks pass;
+source, configuration, server-bundle and source-map probes return `404`.
+The final public host and observed asset URLs contain no personal-name terms.
+Contract deployment and live Hemi filing remain unperformed.

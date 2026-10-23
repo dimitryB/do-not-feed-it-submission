@@ -8,16 +8,19 @@ launch coins into its mouth — Bitcoin, Ether and HEMI — and every coin chang
 it. Feed it enough of one and it mutates for good. Feed it at all and it grows.
 It always wins; the question is how long you last.
 
-What everyone feeds it together is recorded on Hemi, and tomorrow's creature is
-born with whatever the community gave it most.
+The onchain mode will record what everyone feeds it together on Hemi, and
+tomorrow's creature will be born with whatever the community gave it most.
 
 ![The title screen: the kitchen, the creature behind the hatch, a verse from the hosts, and the flying car crossing the back room](docs/media/title.jpg)
 
-**Play:** _deployment pending; a public play link will be added here_ · desktop browser · sound on
+**Play:** [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev) · [Ledger](https://do-not-feed-it.pages.dev/ledger) · desktop browser · sound on
+
+**Live status:** practice mode. Hemi filing, shared leaderboards and community
+inheritance will be enabled after contract deployment.
 
 **Free to play.** No wallet, account or token is needed to play, and nothing in
-the game costs anything. Filing a finished shift on Hemi is optional: one
-transaction, and the only cost is its gas (a fraction of a cent on Hemi).
+the game costs anything. Once the contract is deployed, filing a finished shift
+on Hemi will be optional and require one transaction plus its network gas fee.
 
 ## How to play
 
@@ -74,6 +77,9 @@ creature getting bigger. A viewer who doesn't know the slang can still say
 what happened.
 
 ## The community creature (onchain)
+
+This integration is implemented and tested locally; it is not enabled on the
+live practice site yet. Contract deployment is a separate next step.
 
 1. **A ticket.** Before a shift the game asks the server for a run id, a seed
    and a snapshot of the community state. A shift is a **trace** — the
@@ -156,7 +162,9 @@ pile rules — is in [docs/CHAIN.md](docs/CHAIN.md).
 ## Built with
 
 TypeScript, React and canvas on [vinext](https://www.npmjs.com/package/vinext)
-(Vite), hosted on Cloudflare Workers with D1. The simulation is a pure,
+(Vite), hosted on Cloudflare Pages with its full server runtime. The onchain
+backend is designed for Cloudflare Workers and D1; the live practice build has
+no database or signing key. The simulation is a pure,
 fixed-tick, seeded module (`lib/game/`) with no DOM, clock or randomness of its
 own; the renderer (`lib/render/`) only draws it. The contract is Solidity with
 OpenZeppelin's ECDSA and EIP-712, tested with Hardhat; the client and Worker
@@ -180,10 +188,30 @@ verifier key and a database (see `.env.example` and `.dev.vars.example`).
 | `npm test` | The rules, replay, lore, chain, ledger and verifier tests |
 | `npm run test:contract` | The `FeedRegistry` tests (downloads the Solidity compiler; `test:contract:js` uses the bundled solc-js instead) |
 | `npm run check` | Types, lint, all tests and a production build |
+| `npm run build:pages` | Package the full app and assets for Cloudflare Pages practice hosting |
 | `node --experimental-strip-types scripts/chain-e2e.mjs` | The whole flow — ticket, play, replay, sign, file, inherit — through the real page on a local Hardhat chain |
 | `node --experimental-strip-types scripts/loop-bots.mjs` | Plays hundreds of shifts with bot players, from a blind one to a good one, and reports the pacing |
 
-**Deploying:** Follow [the deployment guide](docs/CHAIN.md#11-deployment)
+## Deploy the practice game
+
+The live game uses Cloudflare Pages Advanced Mode, including server rendering
+and the API routes. Its configuration is in
+[`cloudflare/pages/wrangler.jsonc`](cloudflare/pages/wrangler.jsonc). It has no
+D1 binding, verifier key or contract settings, so filing stays disabled.
+
+From an authenticated Cloudflare account with access to this Pages project:
+
+```sh
+DNFI_SITE_URL=https://do-not-feed-it.pages.dev npm run build:pages
+npx wrangler pages deploy --cwd cloudflare/pages --project-name do-not-feed-it --branch main
+```
+
+`build:pages` writes `dist/pages`: public assets, a reserved `_worker.js` bundle
+and static-asset route exclusions. It also removes Vite's generated Workers
+deployment redirect. Use the Pages command above to deploy this output; a plain
+`wrangler deploy` targets Workers. The build origin also sets social-card URLs.
+
+**Onchain deployment later:** Follow [the deployment guide](docs/CHAIN.md#11-deployment)
 for the contract, D1 migrations, Worker secrets and a production build.
 `wrangler.example.jsonc` is a template: copy it to `wrangler.production.jsonc`
 and fill in your own account, database and deployed contract settings. Build
@@ -204,6 +232,7 @@ are recorded in [docs/RELEASE_REVIEW.md](docs/RELEASE_REVIEW.md).
 | `lib/engine/` | Render core, effects, post-processing, textures and audio |
 | `lib/chain/` | The signed result, the wallet flow and the ledger view |
 | `worker/` | The Cloudflare Worker: tickets, replay, attestation, indexer |
+| `cloudflare/pages/` | The live practice site's Pages deployment configuration |
 | `contracts/`, `test/` | `FeedRegistry` and its Hardhat tests |
 | `db/`, `drizzle/` | The Worker's D1 schema and migrations |
 | `tests/` | Rules, replay fixtures, lore, chain and verifier tests |
