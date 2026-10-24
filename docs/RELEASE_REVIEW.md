@@ -103,11 +103,12 @@ downgrade would also require a contract-tooling migration. Preserve the tested
 tooling, use trusted local configuration/inputs, and update when upstream ships
 a compatible fix. This remains a disclosed development dependency risk.
 
-The practice game is now live; the Hemi registry address remains pending.
-Before enabling onchain filing, deploy and verify the actual contract, configure
-and migrate D1, set verifier secrets, publish the configured backend and test a
-real filing/receipt and public replay from the deployed commit. Then record the
-registry address in the README.
+Hemi Mainnet filing is enabled on the live Pages game. The remaining operator
+check is a real funded-wallet filing, its mined game receipt and public replay
+against the onchain event from the frozen version 10 commit. Activation checks
+verified public attestation and trace replay plus a contract-call simulation;
+they sent no game transaction. Hemi Explorer source publication also remains
+pending as described in the contract deployment record below.
 See [CHAIN.md, Deployment](CHAIN.md#11-deployment).
 
 The verifier remains a trusted server key; owner rotation/pause is its recovery
@@ -126,9 +127,10 @@ review does not confirm eligibility, deadlines or permission requirements.
 
 Deployed October 23, 2026 to [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev)
 with source commit `a7a3749dc18b46ace3b156def27b0cc215832619`.
-The [ledger](https://do-not-feed-it.pages.dev/ledger) currently reports disabled
-filing. The Pages Advanced Mode package preserves server rendering and API
-routes and contains no D1 binding, verifier key or contract settings.
+At this deployment, the [ledger](https://do-not-feed-it.pages.dev/ledger)
+reported disabled filing. That Pages Advanced Mode package preserved server
+rendering and API routes and contained no D1 binding, verifier key or contract
+settings.
 
 All 11 live browser checks pass without request adapters or development hooks:
 art, gameplay, input, pause/resume, modal focus, ledger navigation, social
@@ -136,7 +138,7 @@ metadata, and name-free URLs. No console, page or network errors, chain POSTs,
 or disabled world reads occurred. All 24 live endpoint/security checks pass;
 source, configuration, server-bundle and source-map probes return `404`.
 The final public host and observed asset URLs contain no personal-name terms.
-Contract deployment and live Hemi filing remain unperformed.
+Contract deployment and live Hemi filing remained unperformed at that stage.
 
 ## Mainnet infrastructure preparation
 
@@ -147,10 +149,12 @@ operator commands are in [the deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md).
 Production has a 30,000 ms CPU budget; the operator confirmed Workers Paid.
 Local and preview configurations remain unbound practice.
 
-The registry address, deployment block and genesis are deliberately blank.
+The registry address, deployment block and genesis were deliberately blank
+at this preparation stage.
 At that stage no mainnet transaction had been sent: the deployment wallet key
 remained on the operator's other Mac. The completed contract deployment is
-recorded below; the live site still awaits its configured Pages redeployment.
+recorded below; the live site still awaited its configured Pages redeployment
+at that point.
 
 ## Mac deployment readiness review — October 24, 2026
 
@@ -158,8 +162,8 @@ Confirmed Hemi's RPC chain ID is `43111`. The existing Proof of Patience
 registry (`0xAd093A653B3D9d2612D79cDa5e7A730cf439A0F7`) reports owner
 `0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2`, matching its deployment
 parameters. That account has enough Hemi ETH for the simulated FeedRegistry
-deployment. The live game reports version 10 and the same version hash and
-epoch length as the deployment handoff; filing remains disabled.
+deployment. The then-live game reported version 10 and the same version hash
+and epoch length as the deployment handoff; filing remained disabled.
 
 All 167 application tests and 31 production-profile contract tests pass, as do
 TypeScript, ESLint and the production build. A local deployment of the updated
@@ -208,5 +212,54 @@ The public receipt and verification details are saved in
 [`deployments/hemi-43111.json`](../deployments/hemi-43111.json). The production
 Pages config now contains the verified contract address, deployment block and
 genesis. No Pages deployment or real game filing was performed in this step;
-the existing public deployment remains in practice mode. The handoff contains
-the remaining activation and wallet-free Explorer verification commands.
+the public deployment still ran in practice mode at that point. The later
+Pages activation is recorded below. The handoff retains the wallet-free
+Explorer verification command.
+
+## Live Pages activation and version 10 freeze — October 24, 2026
+
+Hemi Mainnet filing is enabled at
+[do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev). The activation
+deployment is
+[`ee4546ca.do-not-feed-it.pages.dev`](https://ee4546ca.do-not-feed-it.pages.dev),
+built from gameplay commit `c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590`.
+The [public activation manifest](../deployments/game-version-10.json) records
+the exact rules-file hashes, production deployment, public trace and validation
+counts. The original [contract receipt](../deployments/hemi-43111.json) remains
+unchanged and preserves source commit
+`ffd444f9b20f180e7ed7c64b617f7f7653fca217`.
+
+All 167 application tests, 31 production-profile contract tests, TypeScript,
+ESLint and Pages packaging pass; GitHub Actions for the activation source
+commit is green. Seven live browser checks confirmed enabled chain `43111`,
+version `10`, a fresh world and ledger, a new Hemi Mainnet ticket and normal
+gameplay without page errors.
+
+A public ticket was played by a moderate bot for 31,282 ticks using 928
+commands, scoring 775,396. All attested metrics matched local replay and the
+verifier signature matched the registry's actual verifier address. The
+[persisted public trace](https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x2e5210a04043999508e5743c737eb273304d4d922554eb2c041a154b7dac8d01)
+passed ten independent `verify-filing.mjs --no-chain` checks. Six live
+attestation checks passed. An `eth_call` simulation of `submitResult` accepted
+both signatures, while `usedRunIds` stayed false before and after the call.
+No game transaction was broadcast; the test player was ephemeral and unfunded,
+and its private key and player signature were not retained.
+
+**A real funded-wallet filing, mined game receipt and replay against its
+onchain event have not been tested.** The operator can complete that check by
+playing a new shift and choosing **File this shift**, which is optional and
+pays Hemi gas, then verifying the receipt and replay using the handoff.
+
+Version 10 is frozen at the activation commit above. The three balance commits
+`a4e7109`, `44e88cc` and `c0439ec` were applied before public filing activation;
+RPC logs confirmed zero `ResultRecorded` events before activation. Every future
+change that affects a run's outcome **must increase `GAME_VERSION`** and have
+the contract owner rotate the accepted version before filing uses the new
+rules. Local and preview environments remain unbound practice.
+
+The activation artifact scan covered 24 files and found no source maps,
+TypeScript, SQL, environment files, deployment configuration, private paths,
+literal credentials or test keys. Dynamic API routes remain handled by the
+reserved Worker bundle; only static assets bypass it. Hemi Explorer source
+publication remains subject to the TLS/Cloudflare challenge limitation already
+recorded above; Sourcify and Routescan verification remain complete.

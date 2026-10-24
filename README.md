@@ -8,21 +8,22 @@ launch coins into its mouth — Bitcoin, Ether and HEMI — and every coin chang
 it. Feed it enough of one and it mutates for good. Feed it at all and it grows.
 It always wins; the question is how long you last.
 
-The onchain mode will record what everyone feeds it together on Hemi, and
-tomorrow's creature will be born with whatever the community gave it most.
+Optional filings record what everyone feeds it together on Hemi, and
+tomorrow's creature is born with whatever the community gave it most.
 
 ![The title screen: the kitchen, the creature behind the hatch, a verse from the hosts, and the flying car crossing the back room](docs/media/title.jpg)
 
 **Play:** [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev) · [Ledger](https://do-not-feed-it.pages.dev/ledger) · desktop browser · sound on
 
-**Live status:** practice mode. Hemi filing, shared leaderboards and community
-inheritance await a Pages redeployment with the prepared contract configuration.
-The contract is deployed on Hemi Mainnet and verified on Sourcify; the receipt
-and activation steps are in the [Hemi deployment handoff](docs/HEMI_DEPLOYMENT_HANDOFF.md).
+**Live status:** Hemi Mainnet filing, shared leaderboards and community
+inheritance are enabled as of October 24, 2026. The contract is deployed and
+verified on Sourcify. The [deployment record](docs/HEMI_DEPLOYMENT_HANDOFF.md)
+describes the live checks and the remaining funded-wallet filing check.
 
 **Free to play.** No wallet, account or token is needed to play, and nothing in
-the game costs anything. Once filing is enabled, filing a finished shift
-on Hemi will be optional and require one transaction plus its network gas fee.
+the game costs anything. Filing a finished shift on Hemi is optional and
+requires one transaction plus its network gas fee. Finish a shift and choose
+**File this shift** to record it with your wallet.
 
 ## How to play
 
@@ -87,9 +88,11 @@ what happened.
 
 ## The community creature (onchain)
 
-This integration is implemented and tested locally; it is not enabled on the
-live practice site yet. The contract is deployed; the remaining step is enabling
-its configuration on Pages.
+This integration is enabled on the live site. Public tickets, replay
+attestations, stored traces and a simulated contract submission have passed
+live checks. A real funded-wallet filing, mined game receipt and replay against
+that onchain event remain an operator follow-up; no game transaction was sent
+during activation validation.
 
 1. **A ticket.** Before a shift the game asks the server for a run id, a seed
    and a snapshot of the community state. A shift is a **trace** — the
@@ -156,6 +159,12 @@ no funds, has no token, takes no approvals and cannot be upgraded. The board is
 a cache of chain history that can always be rebuilt; when Hemi's RPC is down it
 says so and goes stale rather than wrong.
 
+Rules version 10 is frozen at the [activation commit](https://github.com/dimitryB/do-not-feed-it-submission/commit/c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590).
+The [public activation record](deployments/game-version-10.json) records the
+rules hashes and live validation.
+Every later change that affects a run's outcome must increase `GAME_VERSION`
+and have the contract owner rotate the accepted version before filing resumes.
+
 ### Randomness and Bitcoin data
 
 The seed is chosen by the server for each ticket and disclosed before play.
@@ -176,7 +185,7 @@ pile rules — is in [docs/CHAIN.md](docs/CHAIN.md).
 TypeScript, React and canvas on [vinext](https://www.npmjs.com/package/vinext)
 (Vite), hosted on Cloudflare Pages with its full server runtime. The onchain
 backend uses Cloudflare Workers and D1. The production database, server verifier
-and deployed registry configuration are prepared; Pages activation is pending. The simulation is a pure,
+and deployed registry configuration are active. The simulation is a pure,
 fixed-tick, seeded module (`lib/game/`) with no DOM, clock or randomness of its
 own; the renderer (`lib/render/`) only draws it. The contract is Solidity with
 OpenZeppelin's ECDSA and EIP-712, tested with Hardhat; the client and Worker
@@ -200,19 +209,24 @@ verifier key and a database (see `.env.example` and `.dev.vars.example`).
 | `npm test` | The rules, replay, lore, chain, ledger and verifier tests |
 | `npm run test:contract` | The `FeedRegistry` tests (downloads the Solidity compiler; `test:contract:js` uses the bundled solc-js instead) |
 | `npm run check` | Types, lint, all tests and a production build |
-| `npm run build:pages` | Package the full app and assets for Cloudflare Pages practice hosting |
+| `npm run build:pages` | Package the full app and assets for Cloudflare Pages hosting |
 | `node --experimental-strip-types scripts/chain-e2e.mjs` | The whole flow — ticket, play, replay, sign, file, inherit — through the real page on a local Hardhat chain |
 | `node --experimental-strip-types scripts/loop-bots.mjs` | Plays hundreds of shifts with bot players, from a blind one to a good one, and reports the pacing |
 
-## Deploy the practice game
+<a id="deploy-the-practice-game"></a>
+
+## Deploy the Pages game
 
 The live game uses Cloudflare Pages Advanced Mode, including server rendering
 and the API routes. Its configuration is in
 [`cloudflare/pages/wrangler.jsonc`](cloudflare/pages/wrangler.jsonc). Production
-has a prepared D1 binding and CPU budget, with the verifier key stored only as
+has its D1 binding and CPU budget, with the verifier key stored only as
 a Cloudflare secret. The verified registry address, deployment block and genesis
-are configured in source; redeploying Pages activates filing. The currently live
-deployment remains practice-only. Local and preview environments remain unbound practice.
+are configured in source and active in production. Local and preview
+environments remain unbound practice. The October 24 activation deployment is
+[`ee4546ca.do-not-feed-it.pages.dev`](https://ee4546ca.do-not-feed-it.pages.dev),
+built from commit `c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590`; the public game
+continues to use [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev).
 
 From an authenticated Cloudflare account with access to this Pages project:
 
@@ -249,7 +263,7 @@ are recorded in [docs/RELEASE_REVIEW.md](docs/RELEASE_REVIEW.md).
 | `lib/engine/` | Render core, effects, post-processing, textures and audio |
 | `lib/chain/` | The signed result, the wallet flow and the ledger view |
 | `worker/` | The Cloudflare Worker: tickets, replay, attestation, indexer |
-| `cloudflare/pages/` | The live practice site's Pages deployment configuration |
+| `cloudflare/pages/` | The live site's Pages deployment configuration |
 | `contracts/`, `test/` | `FeedRegistry` and its Hardhat tests |
 | `db/`, `drizzle/` | The Worker's D1 schema and migrations |
 | `tests/` | Rules, replay fixtures, lore, chain and verifier tests |

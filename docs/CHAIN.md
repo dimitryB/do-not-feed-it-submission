@@ -5,10 +5,13 @@ interfaces the pieces share. This page is the contract between the Solidity,
 the Worker, the client and the tests; change it first, then the code.
 
 The contract, Worker, client and local test harness are implemented in this
-repository. The [public practice game](https://do-not-feed-it.pages.dev) is live
-on Cloudflare Pages. FeedRegistry is deployed on Hemi Mainnet at
+repository. The [public game](https://do-not-feed-it.pages.dev) is live
+on Cloudflare Pages with Hemi Mainnet filing enabled as of October 24, 2026.
+FeedRegistry is deployed at
 [`0x909995303dBC651da54b1ab0FF75024E907039c2`](https://repo.sourcify.dev/43111/0x909995303dBC651da54b1ab0FF75024E907039c2),
-with exact source verification on Sourcify. Pages activation remains pending.
+with exact source verification on Sourcify. The live activation checks and
+remaining funded-wallet filing check are recorded in the
+[deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md).
 D-numbers (D183, …) are historical references to the development decision
 register, which is not included in this submission.
 
@@ -57,6 +60,17 @@ played (a bot that plays the real rules gets a real score; see §9).
   `lib/chain/types.ts` `gameVersionId(n)`. A rules change bumps the number; the
   contract's `activeGameVersion` is owner-rotatable so a bump needs a
   `setGameVersion`, not a redeploy; the board filters by version.
+- **Version 10 is frozen at activation commit
+  `c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590` (October 24, 2026).** The three
+  balance commits `a4e7109`, `44e88cc` and `c0439ec` adjusted version 10 before
+  public filing was activated; an RPC log scan confirmed zero `ResultRecorded`
+  events before activation. Every subsequent change that affects a run's
+  outcome **must increase `GAME_VERSION`** and have the contract owner rotate
+  `activeGameVersion` before accepting filings under the new rules. Preserve
+  the activation commit so version 10 traces remain independently replayable.
+  The [public activation record](../deployments/game-version-10.json) records
+  the rules-file hashes, deployment URL and validation evidence separately
+  from the original contract deployment receipt.
 - **Seed**: the ticket's `uint32`, server-random. `createArcade(seed)` as today.
   Practice (no ticket) keeps its client-random seed and is never filed.
 - **Trace**: the `ArcadeCommand[]` the page already records plus `endTick`
@@ -496,19 +510,21 @@ rules' own words for it.
 
 ## 11. Deployment
 
-The current [live game](https://do-not-feed-it.pages.dev) runs in practice mode
-on Cloudflare Pages, with [the ledger page](https://do-not-feed-it.pages.dev/ledger)
-showing that filing is disabled. Its production database and verifier are
-prepared. The contract is deployed and the source Pages configuration now
-contains its address, deployment block and genesis; that configuration has not
-yet been redeployed to the public site.
-See [the practice deployment instructions](../README.md#deploy-the-practice-game)
+The current [live game](https://do-not-feed-it.pages.dev) has Hemi Mainnet filing
+enabled on Cloudflare Pages. The October 24, 2026 activation deployment is
+[`ee4546ca.do-not-feed-it.pages.dev`](https://ee4546ca.do-not-feed-it.pages.dev),
+built from `c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590`. Production uses the
+migrated D1 database, production-only verifier secret and deployed registry
+parameters; local and preview environments remain unbound practice.
+See [the Pages deployment instructions](../README.md#deploy-the-pages-game)
 for Pages builds and uploads.
 
-The database migrations and production-only verifier secret are prepared.
-The receipt and current activation steps are in the
-[mainnet deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md). Do not redeploy the
-registry to activate the site.
+The public configuration, fresh indexed world, browser ticket flow, verifier
+attestation, persisted trace and simulated contract submission passed live
+checks. A real funded-wallet filing, mined game receipt and replay against the
+resulting onchain event remain untested. The receipt and operator follow-up
+are in the [mainnet deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md).
+Do not redeploy the registry for this installation.
 
 The rest of this section is a reference for a separate onchain installation.
 

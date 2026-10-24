@@ -1,0 +1,40 @@
+{
+  "status": "live",
+  "activatedOn": "2026-10-24",
+  "siteUrl": "https://do-not-feed-it.pages.dev",
+  "pagesDeploymentUrl": "https://ee4546ca.do-not-feed-it.pages.dev",
+  "chainId": 43111,
+  "registry": "0x909995303dBC651da54b1ab0FF75024E907039c2",
+  "contractDeploymentRecord": "deployments/hemi-43111.json",
+  "gameVersion": 10,
+  "gameVersionId": "0xbd5cb9462bfe8b7ac0ff0c908581c4548415cee73305e800c238acff185fc2f4",
+  "gameplaySourceCommit": "c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590",
+  "rulesSha256": {
+    "lib/game/arcade.ts": "b086032e9a0ea460dfbc43e6ebb2b7705b7b680335138052f486fd72eb36c75d",
+    "lib/game/body.ts": "e5f77c1a9648de959e3e864d2e3d44dd0f151434bfce5fad5a1605e79e4b4bbc",
+    "lib/game/config.ts": "a23aabdb5609e27c83652bee2529453f2247800a564eb521250c63d9a9db7a39",
+    "lib/game/detmath.ts": "102ff3c4b1c80d2c15fa5fd17e78a331516c3b3b203319255a659e1d914d7c47",
+    "lib/game/face.ts": "0ee0a17bb6c05a032b9916a12aba6ef5e14703645e4cd899dc0fcc4b372ec69a",
+    "lib/game/simulation.ts": "1f474b1b79ce6e3fcbfb61a5b7df77ccc4bf5a57cfa76eae23774d83846603cc"
+  },
+  "validation": {
+    "applicationTests": 167,
+    "contractTests": 31,
+    "liveBrowserChecks": 7,
+    "liveAttestationChecks": 6,
+    "publicTraceReplayChecks": 10,
+    "contractAcceptance": "eth_call simulation passed",
+    "mainnetTransactionsSent": 0,
+    "realWalletFilingVerified": false
+  },
+  "attestationProof": {
+    "runId": "0x2e5210a04043999508e5743c737eb273304d4d922554eb2c041a154b7dac8d01",
+    "traceUrl": "https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x2e5210a04043999508e5743c737eb273304d4d922554eb2c041a154b7dac8d01",
+    "filed": false
+  },
+  "notes": [
+    "Version 10 was tuned before activation; no ResultRecorded event existed at the activation preflight head.",
+    "Future outcome-changing rules require a new GAME_VERSION and an owner update of the registry active version.",
+    "The test player was ephemeral and unfunded; its key and player signature were not retained."
+  ]
+}

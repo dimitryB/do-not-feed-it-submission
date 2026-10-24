@@ -4,9 +4,11 @@ The live game is [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev).
 FeedRegistry was deployed on Hemi Mainnet on October 24, 2026 and has an exact
 creation and runtime match on [Sourcify](https://repo.sourcify.dev/43111/0x909995303dBC651da54b1ab0FF75024E907039c2).
 It is also [verified on Routescan](https://routescan.io/address/0x909995303dBC651da54b1ab0FF75024E907039c2?chainid=43111).
-Its Cloudflare production database and server verifier are prepared. Filing
-stays disabled on the existing live site until Pages is redeployed with the
-configuration now recorded in `cloudflare/pages/wrangler.jsonc`.
+Its Cloudflare production database and server verifier are active. Hemi Mainnet
+filing was enabled on October 24, 2026. The
+[version 10 activation record](../deployments/game-version-10.json) identifies
+the deployed game rules and completed validation; a real funded-wallet filing
+and mined game receipt remain an operator follow-up.
 
 ## Completed deployment
 
@@ -39,12 +41,59 @@ npx hardhat verify blockscout --config hardhat.verify.config.ts --network hemi \
   0xbd5cb9462bfe8b7ac0ff0c908581c4548415cee73305e800c238acff185fc2f4 86400
 ```
 
-**Do not run another contract deployment for this installation.** Build and
-redeploy Pages using the commands in the README, then check the enabled chain
-configuration, a verifier attestation, a real filing and its public replay.
+**Do not run another contract deployment for this installation.** The existing
+Pages site is active with this registry. Use the README's Pages commands for
+later site deployments, subject to the rules-version freeze below.
 
 Keep the deployment wallet key on the Mac where it already lives. The server
 verifier is a separate key, stored as an encrypted production Pages secret.
+
+## Pages activation and validation — October 24, 2026
+
+The production origin is [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev).
+The activation deployment is
+[`ee4546ca.do-not-feed-it.pages.dev`](https://ee4546ca.do-not-feed-it.pages.dev),
+built from gameplay commit `c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590`.
+The [public activation record](../deployments/game-version-10.json) contains
+the rules-file SHA-256 hashes and validation counts. The contract deployment
+receipt remains unchanged, including its original source commit
+`ffd444f9b20f180e7ed7c64b617f7f7653fca217`.
+
+Live checks confirmed enabled configuration on chain `43111`, version `10`, a
+fresh indexed world, the ledger and a new browser ticket showing Hemi Mainnet.
+Gameplay passed seven live browser checks without page errors. A moderate bot
+played a public ticket for 31,282 ticks with 928 commands and scored 775,396;
+every returned attestation metric matched local replay. The verifier signature
+matches the address read from the deployed registry. Its
+[persisted public trace](https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x2e5210a04043999508e5743c737eb273304d4d922554eb2c041a154b7dac8d01)
+passed all ten independent `verify-filing.mjs --no-chain` checks.
+
+An `eth_call` simulation of `submitResult` accepted both the player and
+verifier signatures. **No game transaction was sent.** `usedRunIds` remained
+false before and after the simulation; it did not create a filing or receipt.
+The test player was ephemeral and unfunded, and its key and signature were
+not retained.
+
+**Remaining operator check:** play a new live shift and choose **File this
+shift** with your funded wallet. Filing is optional and pays Hemi network gas.
+Confirm the successful receipt and `ResultRecorded` event, then run
+the verifier from the frozen version 10 commit:
+
+```sh
+node --experimental-strip-types scripts/verify-filing.mjs \
+  --site https://do-not-feed-it.pages.dev --rpc https://rpc.hemi.network/rpc \
+  --tx <transaction hash>
+```
+
+A real funded-wallet filing, mined game receipt and replay against that
+onchain event have not yet been tested.
+
+Version 10 is frozen at the activation commit above. The three balance commits
+`a4e7109`, `44e88cc` and `c0439ec` preceded public filing activation; RPC logs
+confirmed zero `ResultRecorded` events before activation. Every future change
+that affects a run's outcome **must increase `GAME_VERSION`** and have the
+contract owner rotate `activeGameVersion` before filings use the new rules.
+Keep the version 10 source available for replay.
 
 ## Deployment parameters
 
@@ -127,8 +176,7 @@ interrupted terminal cannot silently cause a second deployment. A record in
 If the script prints a transaction hash and then fails, check that transaction
 before running another deployment; it may already have succeeded.
 
-For the deployment above, the receipt, constructor values and exact Sourcify
-match are already verified and the Pages configuration is filled. Remaining
-work is Hemi Explorer publication and a Pages redeployment, followed by an
-attestation, real filing and public replay check. The public game remains in
-practice mode until that Pages deployment.
+For this installation, the contract and Pages activation are complete.
+Remaining work is Hemi Explorer source publication and the real funded-wallet
+filing, receipt and onchain replay check described above. Local and preview
+Pages environments remain unbound practice.
