@@ -18,7 +18,8 @@ tomorrow's creature is born with whatever the community gave it most.
 **Live status:** Hemi Mainnet filing, shared leaderboards and community
 inheritance are enabled as of October 24, 2026. The contract is deployed and
 verified on Sourcify. The [deployment record](docs/HEMI_DEPLOYMENT_HANDOFF.md)
-describes the live checks and the remaining funded-wallet filing check.
+records the live checks, including a confirmed funded-wallet filing and its
+independent replay against the onchain event.
 
 **Free to play.** No wallet, account or token is needed to play, and nothing in
 the game costs anything. Filing a finished shift on Hemi is optional and
@@ -100,9 +101,11 @@ what happened.
 
 This integration is enabled on the live site. Public tickets, replay
 attestations, stored traces and a simulated contract submission have passed
-live checks. A real funded-wallet filing, mined game receipt and replay against
-that onchain event remain an operator follow-up; no game transaction was sent
-during activation validation.
+live checks. A [funded-wallet filing](https://explorer.hemi.xyz/tx/0xe53201f7da126f0fbe34528c50e648f3a12aef4d9b61408418bf62520ba8c737)
+was confirmed in block `5584670`: **109,727 points**, 192 tokens fed and two
+PRESS E hits. Its [public trace](https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x9b697066226a488d7736f2005cd8df3626df2e3b6a1d10a3e8cd138d475acbf2)
+passed all 20 independent receipt, trace and replay checks against the onchain
+event.
 
 1. **A ticket.** Before a shift the game asks the server for a run id, a seed
    and a snapshot of the community state. A shift is a **trace** — the

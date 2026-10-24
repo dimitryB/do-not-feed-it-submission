@@ -52,8 +52,10 @@
     "attestationIdempotent": true,
     "contractAcceptance": "eth_call simulation passed",
     "ownerRegistryVersionTransactions": 1,
-    "gameFilingTransactionsSent": 0,
-    "realWalletFilingVerified": false
+    "gameFilingTransactionsSent": 1,
+    "gameFilingTransactionSender": "owner wallet, submitted by the user",
+    "realWalletFilingVerified": true,
+    "realWalletFilingReplayChecks": 20
   },
   "attestationProof": {
     "runId": "0x23da49b5e3571ce05f7f352434c0a374a699bc6396fedb16c0a56fd60c5354da",
@@ -71,13 +73,47 @@
     "usedRunIdsAfterSimulation": false,
     "filed": false
   },
+  "realWalletFilingProof": {
+    "transactionHash": "0xe53201f7da126f0fbe34528c50e648f3a12aef4d9b61408418bf62520ba8c737",
+    "transactionUrl": "https://explorer.hemi.xyz/tx/0xe53201f7da126f0fbe34528c50e648f3a12aef4d9b61408418bf62520ba8c737",
+    "blockNumber": 5584670,
+    "receiptStatus": "success",
+    "player": "0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2",
+    "runId": "0x9b697066226a488d7736f2005cd8df3626df2e3b6a1d10a3e8cd138d475acbf2",
+    "traceUrl": "https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x9b697066226a488d7736f2005cd8df3626df2e3b6a1d10a3e8cd138d475acbf2",
+    "traceHash": "0x446e3e5d034495254298974384a0aaf67341070a78491eca0e6cc16d57bfc748",
+    "snapshotHash": "0x1e60be53f880163c2ba1e717a24425703e2aed0ec474edcc77c2a733c4512142",
+    "durationTicks": 9731,
+    "commandCount": 223,
+    "pressECommands": 2,
+    "score": 109727,
+    "totalFeeds": 192,
+    "btcFed": 31,
+    "ethFed": 78,
+    "hemiFed": 83,
+    "bestCombo": 18,
+    "frenzies": 9,
+    "sizeCenti": 231,
+    "ending": 3,
+    "cause": "empty-belly",
+    "epoch": 0,
+    "fedPile": true,
+    "usedRunIdVerified": true,
+    "bestScoreReadBack": 109727,
+    "indexedLeaderboardVerified": true,
+    "gasUsed": 174024,
+    "nativeValueWei": "0",
+    "onchainReplayChecks": 20
+  },
   "notes": [
     "Version 11 adds PRESS E as a recorded command that restores a hungry belly to 100% once per sign.",
     "The owner signed the registry-version update on a separate Mac; the transaction receipt and accepted version were independently verified before production activation.",
     "The existing contract was not redeployed; its original deployment journal and the historical version 10 activation record are preserved.",
     "Production browser checks covered loaded artwork, omitted development hooks, matching enabled version 11 configuration, start, keyboard launch, pause/resume and no browser or scene errors. Chromium also hit a live PRESS E sign.",
     "A live ticket containing ten PRESS E commands passed replay attestation, verifier-signature verification, idempotent repeat, all ten public trace replay checks and a submitResult eth_call simulation.",
-    "The contract acceptance check did not broadcast a game transaction or create a filing; usedRunIds remained false before and after the simulation. No real funded-wallet game filing is claimed.",
+    "The initial contract acceptance simulation did not broadcast a game transaction or create a filing; its test run's usedRunIds remained false before and after the simulation.",
+    "The user subsequently filed a real shift from the funded owner wallet. The successful receipt, ResultRecorded and PileFed events, usedRunIds, best score and saved trace passed all twenty independent onchain replay checks.",
+    "The user's completed filing does not resolve the separately reported MetaMask website-classification warning or the pending Blockaid review.",
     "Future outcome-changing rules require a new GAME_VERSION and an owner update of the registry active version."
   ]
 }

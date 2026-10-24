@@ -7,8 +7,8 @@ It is also [verified on Routescan](https://routescan.io/address/0x909995303dBC65
 Its Cloudflare production database and server verifier are active. Hemi Mainnet
 filing was enabled on October 24, 2026. The
 [version 11 activation record](../deployments/game-version-11.json) identifies
-the current game rules and validation status; a real funded-wallet filing
-and mined game receipt remain an operator follow-up.
+the current game rules and validation status, including a confirmed
+funded-wallet filing and independent replay against its onchain event.
 
 ## Completed deployment
 
@@ -75,8 +75,8 @@ The test player was ephemeral and unfunded, and its key and signature were
 not retained.
 
 These version 10 checks did not include a real funded-wallet filing, mined game
-receipt or replay against that onchain event. The current version's remaining
-operator check is described below.
+receipt or replay against that onchain event. The completed version 11 filing
+check is described below.
 
 Version 10 is frozen at the activation commit above. The three balance commits
 `a4e7109`, `44e88cc` and `c0439ec` preceded public filing activation; RPC logs
@@ -121,23 +121,32 @@ with local replay, verifier-signature verification against the deployed
 registry and idempotent repeat. The
 [persisted public trace](https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x23da49b5e3571ce05f7f352434c0a374a699bc6396fedb16c0a56fd60c5354da)
 passed all ten independent CLI replay checks. A `submitResult` `eth_call`
-simulation accepted the player and verifier signatures. No game transaction
-was sent: `usedRunIds` stayed false before and after the simulation.
+simulation accepted the player and verifier signatures. That preflight sent
+no game transaction: `usedRunIds` stayed false before and after the simulation.
 
-**Remaining operator check:** play a new live shift, press E on a sign and
-choose **File this shift** with a funded wallet. Filing is optional and pays
-Hemi network gas. Confirm the receipt and `ResultRecorded` event, then replay
-the filing from the frozen version 11 commit:
+**Funded-wallet filing verified — October 24, 2026:** the owner wallet filed a
+real shift in transaction
+[`0xe53201f7da126f0fbe34528c50e648f3a12aef4d9b61408418bf62520ba8c737`](https://explorer.hemi.xyz/tx/0xe53201f7da126f0fbe34528c50e648f3a12aef4d9b61408418bf62520ba8c737),
+confirmed successfully in block `5584670`. It recorded 109,727 points over
+9,731 ticks, with 192 feeds (31 BTC, 78 ETH and 83 HEMI), best combo 18 and nine
+FOMOs. The [persisted public trace](https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x9b697066226a488d7736f2005cd8df3626df2e3b6a1d10a3e8cd138d475acbf2)
+contains 223 commands, including two PRESS E hits.
+
+All 20 independent CLI checks passed against the receipt and registry event.
+`usedRunIds` is true, the wallet's best score is 109,727, and the receipt's
+`PileFed` event confirms the shift fed epoch 0's community pile. The transaction
+sent zero native-currency value and used 174,024 gas. Repeat the verification
+from the frozen version 11 commit:
 
 ```sh
 node --experimental-strip-types scripts/verify-filing.mjs \
   --site https://do-not-feed-it.pages.dev --rpc https://rpc.hemi.network/rpc \
-  --tx <transaction hash>
+  --tx 0xe53201f7da126f0fbe34528c50e648f3a12aef4d9b61408418bf62520ba8c737
 ```
 
-No real version 11 game filing or mined game receipt has been verified yet.
-The owner's rules-version update is an administrative transaction, not a game
-filing.
+This filing is separate from the owner's earlier administrative rules-version
+update. It does not resolve the MetaMask classification warning documented in
+the README; the Blockaid review remains pending.
 
 ## Deployment parameters
 
@@ -221,6 +230,7 @@ If the script prints a transaction hash and then fails, check that transaction
 before running another deployment; it may already have succeeded.
 
 For this installation, the contract and Pages activation are complete.
-Remaining work is Hemi Explorer source publication and the real funded-wallet
-filing, receipt and onchain replay check described above. Local and preview
-Pages environments remain unbound practice.
+The funded-wallet filing, receipt and onchain replay check are complete.
+Remaining work is Hemi Explorer source publication and the pending MetaMask
+classification review. Local and preview Pages environments remain unbound
+practice.
