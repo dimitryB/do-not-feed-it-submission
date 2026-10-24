@@ -386,6 +386,14 @@ export const LEDGER = {
     pileUnknownEpoch: (btc: number, eth: number, hemi: number) => `This shift: ${btc} BTC · ${eth} ETH · ${hemi} HEMI.`,
   },
   actions: { retry: 'Retry', skip: 'Skip', cancel: 'Cancel', check: 'Check again' },
+  wallet: {
+    title: 'Choose a wallet',
+    description: 'Select the wallet to file this shift.',
+    close: 'Close wallet chooser',
+    empty: 'No wallet detected in this browser.',
+    missing: 'Missing MetaMask? Enable its extension for this site, then refresh wallets.',
+    refresh: 'Refresh wallets',
+  },
   /** Why it was not filed, by the failure code, in plain words. */
   reasons: {
     no_wallet: 'No wallet found in this browser.',

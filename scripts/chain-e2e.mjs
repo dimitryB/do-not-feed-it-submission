@@ -419,6 +419,11 @@ async function main() {
       const mark = await page.evaluate(() => window.__ledgerTrail.length);
       const clickedAt = Date.now();
       await page.getByRole("button", { name: button }).click();
+      // Filing always starts with an explicit provider choice; receipt-only
+      // checks resume without opening a wallet or asking for a connection.
+      if (button !== "Check again") {
+        await page.getByRole("dialog", { name: "Choose a wallet" }).getByRole("button", { name: "E2E Wallet", exact: true }).click();
+      }
       try {
         await page.waitForFunction((m) => window.__ledgerTrail.slice(m).some((e) => e.status === "filed" || e.status === "failed" || e.status === "off"), mark, { timeout: 60_000, polling: 50 });
       } catch (error) {

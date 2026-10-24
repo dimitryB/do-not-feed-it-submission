@@ -10,7 +10,8 @@ import {
 } from "../../lib/chain/ledger";
 import { HEMI_CHAIN_ID, inheritedOf, type RunResult } from "../../lib/chain/types";
 import { epochSpan } from "../../lib/chain/ledgerView";
-import { connect, ensureChain, pickProvider, publicClientFor, publicClientOver, readBestScore, readUsedRunId, signResult, submitResult, waitForReceipt, walletClientFor, type Eip1193Provider } from "../../lib/chain/wallet";
+import { connect, ensureChain, publicClientFor, publicClientOver, readBestScore, readUsedRunId, signResult, submitResult, waitForReceipt, walletClientFor, watchProviders, WalletError, type Eip1193Provider } from "../../lib/chain/wallet";
+import { WalletPicker } from "./WalletPicker";
 import { DEV_HOOKS, devHookBag } from "../../lib/dev/hook";
 import { INHERITED, LEDGER } from "../../lib/render/lore";
 import { communityDietLine, type CommunityDiet } from "../../lib/community/diet";
@@ -66,12 +67,11 @@ const inheritedOfWorld = (world: World | null): ChainView["inherited"] => {
 };
 
 /**
- * The real dependencies: the wallet is picked on connect; reads go over the
+ * The real dependencies: the wallet is selected explicitly; reads go over the
  * config's public RPC, or over the wallet's own connection when the config
  * gave none (a local chain in the end-to-end run).
  */
-function realDeps(info: ChainInfo, contractAddress: Address): LedgerDeps {
-  let provider: Eip1193Provider | null = null;
+function realDeps(info: ChainInfo, contractAddress: Address, provider: Eip1193Provider | null = null): LedgerDeps {
   let account: Address | null = null;
   let publicClient = info.rpcUrl ? publicClientFor(info) : null;
   const reader = () => { if (!publicClient && provider) publicClient = publicClientOver(provider, info); return publicClient; };
@@ -80,7 +80,10 @@ function realDeps(info: ChainInfo, contractAddress: Address): LedgerDeps {
     return walletClientFor(provider, info, account);
   };
   const deps: LedgerDeps = {
-    async connect() { provider ??= await pickProvider(); account = await connect(provider); return account; },
+    async connect() {
+      if (!provider) throw new WalletError("no_wallet", "Choose a wallet first");
+      account = await connect(provider); return account;
+    },
     async ensureChain() { if (!provider) throw new Error("Wallet not connected"); await ensureChain(provider, info); },
     attest: (request, signal) => attestCall(request, { signal }),
     sign: (typedData, player) => signResult(wallet(), player, typedData),
@@ -111,6 +114,8 @@ export function useChain(): ChainView {
   const configRef = useRef<ChainConfig | null>(null);
   const spare = useRef<Ticket | null>(null);
   const info = useMemo(() => chainFromConfig(config), [config]);
+  // Keep announcements that arrive before the report or after initial discovery.
+  useEffect(() => watchProviders(() => {}), []);
   useEffect(() => {
     const controller = new AbortController();
     void fetchConfig({ signal: controller.signal }).then(async (c) => {
@@ -283,17 +288,21 @@ export function Ledger({ ticket, commands, endTick, played, chain }: { ticket: T
     return READY;
   });
   const stateRef = useRef(state);
+  const [choosingWallet, setChoosingWallet] = useState(false);
+  const choosingRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
   const set = useCallback((next: LedgerState) => { stateRef.current = next; setState(next); }, []);
-  const run = useCallback((resume: { txHash: Hex; player: Address | null } | null = null) => {
+  const run = useCallback((resume: { txHash: Hex; player: Address | null } | null = null, provider: Eip1193Provider | null = null) => {
     if (!ticket || !contractAddress || !deps) return;
+    if (!resume && !provider) return;
+    const runDeps = resume ? deps : realDeps(info, contractAddress, provider);
     const input: LedgerInput = { ticket, commands: (commands.current ?? []).map((c) => ({ ...c })), endTick, played: playedNumbers(played), contractAddress, chainId: info.id };
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    void runLedger({ input, deps, emit: (s) => { if (!controller.signal.aborted) set(s); }, signal: controller.signal, resume })
+    void runLedger({ input, deps: runDeps, emit: (s) => { if (!controller.signal.aborted) set(s); }, signal: controller.signal, resume })
       .then((final) => { if (!controller.signal.aborted && final.status === "filed") refreshWorld(); });
-  }, [ticket, commands, endTick, played, contractAddress, deps, info.id, set, refreshWorld]);
+  }, [ticket, commands, endTick, played, contractAddress, deps, info, set, refreshWorld]);
   // A shift that reached the report cannot lend its ticket to the next one; and a
   // transaction sent for this very shift (then a reload) picks up its receipt.
   useEffect(() => {
@@ -302,7 +311,7 @@ export function Ledger({ ticket, commands, endTick, played, chain }: { ticket: T
     const remembered = deps?.store.read();
     if (remembered && remembered.runId === ticket.runId && remembered.status === "pending") run({ txHash: remembered.txHash, player: remembered.player });
   }, [ticket, deps, run]);
-  useEffect(() => () => abortRef.current?.abort(), []);
+  useEffect(() => () => { choosingRef.current = false; abortRef.current?.abort(); }, []);
   useEffect(() => {
     if (!DEV_HOOKS) return;
     const bag = devHookBag();
@@ -311,13 +320,19 @@ export function Ledger({ ticket, commands, endTick, played, chain }: { ticket: T
     return () => { delete bag.ledger; };
   }, []);
 
-  const file = () => run(null);
+  const closeWallets = () => { choosingRef.current = false; setChoosingWallet(false); };
+  const file = () => { choosingRef.current = true; setChoosingWallet(true); };
+  const selectWallet = (provider: Eip1193Provider) => {
+    if (!choosingRef.current) return;
+    closeWallets();
+    run(null, provider);
+  };
   const cancel = () => { abortRef.current?.abort(); set(reduce(stateRef.current, { type: "cancel" })); };
   const retry = () => {
     const current = stateRef.current;
     if (current.status === "confirming" && current.stalled) { run({ txHash: current.txHash, player: current.player }); return; }
     set(reduce(current, { type: "retry" }));
-    run(null);
+    file();
   };
   const skip = () => set(reduce(stateRef.current, { type: "skip" }));
 
@@ -387,5 +402,6 @@ export function Ledger({ ticket, commands, endTick, played, chain }: { ticket: T
       break;
     }
   }
-  return <div className={`ledger is-${state.status}`} role="status" aria-live="polite" data-ledger={state.status}>{body}</div>;
+  return <><div className={`ledger is-${state.status}`} role="status" aria-live="polite" data-ledger={state.status}>{body}</div>
+    {choosingWallet && <WalletPicker onSelect={wallet => selectWallet(wallet.provider)} onClose={closeWallets}/>}</>;
 }

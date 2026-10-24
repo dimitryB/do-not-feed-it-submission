@@ -50,50 +50,155 @@ export function toViemChain(chain: ChainInfo): Chain {
 
 // ---- discovery.
 
-/**
- * EIP-6963: ask every wallet extension to announce itself and collect the
- * answers for a moment; fall back to `window.ethereum`. The first wallet to
- * announce wins (the common case is one wallet; a chooser is not worth its
- * screen space on the report), except that a browser's built-in wallet goes
- * last (`rankProviders`). A dev harness that injects `window.ethereum` lands
- * on the fallback.
- */
-export async function discoverProviders(waitMs = 250): Promise<DiscoveredProvider[]> {
-  if (typeof window === "undefined") return [];
-  const found: DiscoveredProvider[] = [];
-  const onAnnounce = (event: Event) => {
-    const detail = (event as CustomEvent<DiscoveredProvider>).detail;
-    if (detail?.provider && typeof detail.provider.request === "function" && !found.some((p) => p.info?.uuid === detail.info?.uuid)) found.push(detail);
-  };
-  window.addEventListener("eip6963:announceProvider", onAnnounce);
+/** Stable within this page, including when announced metadata replaces a legacy label. */
+const providerIds = new WeakMap<Eip1193Provider, string>();
+let nextProviderId = 1;
+export function providerId(provider: Eip1193Provider): string {
+  let id = providerIds.get(provider);
+  if (!id) { id = `wallet-provider-${nextProviderId++}`; providerIds.set(provider, id); }
+  return id;
+}
+
+type ProviderListener = (providers: readonly DiscoveredProvider[]) => void;
+interface ProviderRegistry {
+  target: Window;
+  announced: DiscoveredProvider[];
+  listeners: Set<ProviderListener>;
+}
+const registries = new WeakMap<Window, ProviderRegistry>();
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isProvider(value: unknown): value is Eip1193Provider {
+  return value !== null && (typeof value === "object" || typeof value === "function")
+    && typeof (value as Eip1193Provider).request === "function";
+}
+
+/** Wallet-supplied metadata is untrusted. Copy only the fields the picker uses. */
+function announcedProvider(detail: unknown): DiscoveredProvider | null {
   try {
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  } finally {
-    window.removeEventListener("eip6963:announceProvider", onAnnounce);
+    if (!detail || typeof detail !== "object") return null;
+    const { info, provider } = detail as DiscoveredProvider;
+    if (!isProvider(provider) || !info || typeof info !== "object"
+      || typeof info.uuid !== "string" || !UUID_V4.test(info.uuid)
+      || typeof info.name !== "string" || !info.name.trim() || info.name.length > 128
+      || typeof info.rdns !== "string" || !info.rdns.trim() || info.rdns.length > 255
+      || typeof info.icon !== "string") return null;
+    return { provider, info: { uuid: info.uuid, name: info.name.trim(), rdns: info.rdns.trim(), icon: info.icon } };
+  } catch {
+    // An injected proxy or malformed announcement must not break discovery.
+    return null;
   }
-  return found;
+}
+
+/** Legacy flags label choices only; Brave can also expose isMetaMask. */
+function legacyInfo(provider: Eip1193Provider): DiscoveredProvider["info"] {
+  const flags = provider as Eip1193Provider & {
+    isBraveWallet?: boolean; isMetaMask?: boolean; isRabby?: boolean; isCoinbaseWallet?: boolean;
+  };
+  let name = "Browser wallet", rdns = "legacy.injected.wallet";
+  if (flags.isBraveWallet) { name = "Brave Wallet"; rdns = "com.brave.wallet"; }
+  else if (flags.isRabby) { name = "Rabby Wallet"; rdns = "io.rabby"; }
+  else if (flags.isMetaMask) { name = "MetaMask"; rdns = "io.metamask"; }
+  else if (flags.isCoinbaseWallet) { name = "Coinbase Wallet"; rdns = "com.coinbase.wallet"; }
+  return { uuid: providerId(provider), name, rdns, icon: "" };
+}
+
+function snapshot(registry: ProviderRegistry): DiscoveredProvider[] {
+  const found = [...registry.announced];
+  try {
+    const injected = (registry.target as Window & { ethereum?: Eip1193Provider & { providers?: unknown[] } }).ethereum;
+    // Multi-wallet injection exposes the actual providers here. Do not offer
+    // its default-routing container as an extra wallet beside those choices.
+    const candidates = Array.isArray(injected?.providers) && injected.providers.length ? injected.providers : [injected];
+    for (const provider of candidates) {
+      try {
+        if (isProvider(provider) && !found.some((entry) => entry.provider === provider)) {
+          found.push({ provider, info: legacyInfo(provider) });
+        }
+      } catch { /* One malformed legacy provider must not hide the others. */ }
+    }
+  } catch { /* An unavailable legacy injection does not hide EIP-6963 wallets. */ }
+  return rankProviders(found);
+}
+
+function registryForPage(): ProviderRegistry | null {
+  if (typeof window === "undefined") return null;
+  let registry = registries.get(window);
+  if (!registry) {
+    registry = { target: window, announced: [], listeners: new Set() };
+    registries.set(window, registry);
+    const page = registry;
+    // EIP-6963 requires this listener to live for the page's lifetime. A
+    // picker closing removes its subscriber, never the discovery listener.
+    window.addEventListener("eip6963:announceProvider", (event: Event) => {
+      let detail: unknown;
+      try { detail = (event as CustomEvent<unknown>).detail; } catch { return; }
+      const next = announcedProvider(detail);
+      if (!next || page.announced.some((entry) => entry.provider === next.provider
+        || entry.info.uuid.toLowerCase() === next.info.uuid.toLowerCase())) return;
+      page.announced.push(next);
+      const available = snapshot(page);
+      for (const listener of page.listeners) listener(available);
+    });
+  }
+  return registry;
+}
+
+/** The currently known choices, without connecting or requesting accounts. */
+export function getProviders(): DiscoveredProvider[] {
+  const registry = registryForPage();
+  return registry ? snapshot(registry) : [];
+}
+
+/** Refresh legacy injection as well as asking extensions to announce again. */
+export function refreshProviders(): void {
+  const registry = registryForPage();
+  if (!registry) return;
+  const available = snapshot(registry);
+  for (const listener of registry.listeners) listener(available);
+  registry.target.dispatchEvent(new Event("eip6963:requestProvider"));
 }
 
 /**
- * Built into the browser rather than installed: Brave announces its own wallet
- * first even when MetaMask is installed, and an unconfigured Brave Wallet
- * answers `eth_requestAccounts` by sending the player to its onboarding page.
+ * Observe every wallet, including announcements arriving after the initial
+ * request. Call on page mount, then subscribe again while the picker is open.
+ * Discovery never calls a provider: account access follows the user's choice.
+ */
+export function watchProviders(onChange: ProviderListener): () => void {
+  const registry = registryForPage();
+  if (!registry) { onChange([]); return () => {}; }
+  registry.listeners.add(onChange);
+  onChange(snapshot(registry));
+  registry.target.dispatchEvent(new Event("eip6963:requestProvider"));
+  return () => { registry.listeners.delete(onChange); };
+}
+
+/** A bounded snapshot for legacy callers; discovery itself keeps listening. */
+export async function discoverProviders(waitMs = 250): Promise<DiscoveredProvider[]> {
+  if (typeof window === "undefined") return [];
+  let found: readonly DiscoveredProvider[] = [];
+  const stop = watchProviders((providers) => { found = providers; });
+  try { await new Promise((resolve) => setTimeout(resolve, Math.max(0, waitMs))); }
+  finally { stop(); }
+  return [...found];
+}
+
+/**
+ * Brave may announce first and opens onboarding on eth_requestAccounts when
+ * unconfigured. Prefer installed extensions in the visible list of choices.
  */
 const BUILT_IN_WALLETS = new Set(["com.brave.wallet"]);
 const isBuiltIn = (p: DiscoveredProvider) =>
   BUILT_IN_WALLETS.has(p.info?.rdns ?? "") || /^brave wallet$/i.test(p.info?.name ?? "");
 
-/** The announced wallets in the order to use them: installed extensions first, in announcement order; built-in browser wallets last. */
 export function rankProviders(announced: readonly DiscoveredProvider[]): DiscoveredProvider[] {
   return [...announced.filter((p) => !isBuiltIn(p)), ...announced.filter(isBuiltIn)];
 }
 
+/** Compatibility helper; the filing UI requests an explicit user choice. */
 export async function pickProvider(): Promise<Eip1193Provider> {
-  const announced = rankProviders(await discoverProviders());
-  if (announced.length) return announced[0].provider;
-  const injected = typeof window !== "undefined" ? (window as unknown as { ethereum?: Eip1193Provider }).ethereum : undefined;
-  if (injected && typeof injected.request === "function") return injected;
+  const providers = await discoverProviders();
+  if (providers.length) return providers[0].provider;
   throw new WalletError("no_wallet", "No wallet found");
 }
 

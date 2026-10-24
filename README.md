@@ -214,6 +214,7 @@ verifier key and a database (see `.env.example` and `.dev.vars.example`).
 | --- | --- |
 | `npm test` | The rules, replay, lore, chain, ledger and verifier tests |
 | `npm run test:render` | Chromium, Firefox and WebKit: blur/mask pixels, all creature poses, animation and live controls (install browsers first with `npx playwright install chromium firefox webkit`) |
+| `npm run test:wallet` | Wallet chooser, delayed MetaMask discovery, cancellation and receipt resume with mock providers; no real wallet or transaction |
 | `npm run test:contract` | The `FeedRegistry` tests (downloads the Solidity compiler; `test:contract:js` uses the bundled solc-js instead) |
 | `npm run check` | Types, lint, all tests and a production build |
 | `npm run build:pages` | Package the full app and assets for Cloudflare Pages hosting |

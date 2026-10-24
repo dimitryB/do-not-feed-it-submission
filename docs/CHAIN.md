@@ -310,7 +310,11 @@ Hardhat e2e sets 0), `DNFI_PUBLIC_RPC_URL`, `HEMI_RPC_URL` and
 - `lib/chain/types.ts`: constants, typed-data constructors, ABI, `gameVersionId`,
   `RunResult` JSON codec (bigint ↔ string). Shared with the Worker and tests.
 - `lib/chain/trace.ts`: `encodeTrace`, `traceHash`, `MAX_TRACE_BYTES`. Shared.
-- `lib/chain/wallet.ts`: EIP-6963 discovery with `window.ethereum` fallback;
+- `lib/chain/wallet.ts`: persistent EIP-6963 discovery with a legacy
+  `window.ethereum.providers` / `window.ethereum` fallback. **File this shift**
+  opens a wallet chooser; account access starts only after an explicit choice.
+  Late announcements update the list, and Retry offers the choice again.
+  A pending transaction resumes receipt checking without opening a wallet;
   `connect()`, `ensureChain()` (`wallet_switchEthereumChain`, then
   `wallet_addEthereumChain` with the public RPC and explorer), viem
   `createWalletClient({ transport: custom(provider) })`, `signResult`,
