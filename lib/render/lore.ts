@@ -342,8 +342,9 @@ export const LEDGER = {
   /** The grey line when there is nothing to file. */
   practice: 'Practice shift. Not filed.',
   skipped: 'Not filed.',
-  /** The header label: practice, or the chain and the shift number. */
+  /** The header: free play while loading, the available chain, or the current shift. */
   header: {
+    ready: 'FREE TO PLAY',
     practice: 'LOCAL PRACTICE',
     hemi: 'HEMI MAINNET',
     chain: (id: number) => `CHAIN ${id}`,

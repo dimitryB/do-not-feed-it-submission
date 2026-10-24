@@ -160,10 +160,12 @@ export function useChain(): ChainView {
   return { config, world, info, diet, inherited, filing, ticket, refreshWorld };
 }
 
-/** The header's label: practice, or the chain and the shift number. */
-export function headerLabel(ticket: Ticket | null, info: ChainInfo, shiftNo: number): string {
-  if (!ticket) return LEDGER.header.practice;
-  return `${info.id === HEMI_CHAIN_ID ? LEDGER.header.hemi : LEDGER.header.chain(info.id)} · ${LEDGER.header.shift(shiftNo)}`;
+/** The title shows the available chain; only a started shift needs a ticket. */
+export function headerLabel(ticket: Ticket | null, info: ChainInfo, shiftNo: number, config: ChainConfig | null, hasShift: boolean): string {
+  const chain = info.id === HEMI_CHAIN_ID ? LEDGER.header.hemi : LEDGER.header.chain(info.id);
+  if (ticket) return `${chain} · ${LEDGER.header.shift(shiftNo)}`;
+  if (hasShift || config?.enabled === false) return LEDGER.header.practice;
+  return config?.enabled ? chain : LEDGER.header.ready;
 }
 
 const formatScore = (value: bigint | number) => value.toLocaleString("en-US");
