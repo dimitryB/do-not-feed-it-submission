@@ -108,8 +108,9 @@ export const TUNING = Object.freeze({
    *
    * Paced for a person who is not a gamer to last about three minutes, which
    * puts the casual bot (no fumbles, every craving followed) nearer four and
-   * the never-aiming bot's a little over one. The per-minute term was 0.04
-   * until play-testing on Oct 24 (2:17 for a practiced player). At 0.06
+   * the never-aiming bot's under one. The per-minute term was 0.04 until
+   * play-testing on Oct 24 (2:17 for a practiced player); 0.025 pays for the
+   * quarter serving a coin off the craving now gets. At 0.06
    * the base alone asked for 0.45 servings a second from the first tick, which
    * a casual hand (0.35 a second, measured) never had; the per-minute term is
    * what ends a shift that was holding.
@@ -118,7 +119,7 @@ export const TUNING = Object.freeze({
   graceTicks: 300,
   drainBase: 0.048,
   drainPerSize: 0.008,
-  drainPerMinute: 0.035,
+  drainPerMinute: 0.025,
   /**
    * One number per seed: a hungrier or a lazier creature, 0.7–1.3×.
    * Spreads the deaths. At 0.5–1.5× the draw outweighed the player: the same
@@ -276,13 +277,16 @@ export const TUNING = Object.freeze({
   /**
    * The craved coin curves toward the mouth while the craving is up (per tick²,
    * within `cravingPullRange` px of the opening): switching is made easy, and
-   * following cravings is the long shift. Any other coin, while it waits, is
-   * eaten in full but calms it only `offCravingCalm` as much — NOT THAT. (Half
-   * the serving as well was tried in v10's first cut: it cost the players who
-   * follow cravings as much as the ones who don't.)
+   * following cravings is the long shift. Any other coin, while it waits,
+   * fills it only `offCravingRestore` as much and calms it `offCravingCalm` as
+   * much — NOT THAT. Play-testing on Oct 24 found the space bar held on HEMI,
+   * barrel never moved, outlasting a player who aimed: this is what makes the
+   * order matter, and the slower `drainPerMinute` is what keeps the player
+   * who follows it at three minutes and more.
    */
   cravingPull: 0.08,
   cravingPullRange: 340,
+  offCravingRestore: 0.25,
   offCravingCalm: 0.5,
   pausePerStreak: 0.25,
   appetiteReliefFrom: 2,
@@ -1523,6 +1527,7 @@ function acceptFood(state: ArcadeState, food: Projectile) {
   // Not the one it is waiting for: eaten, grudgingly. A crate's coins are exempt.
   const snub = state.craving !== null && !craving && !pour;
   const grudging = snub ? TUNING.offCravingCalm : 1;
+  const grudgingFill = snub ? TUNING.offCravingRestore : 1;
   state.totalFeeds++;
   if (craving) state.correctFeeds++;
   state.servings[food.ingredient]++;
@@ -1538,7 +1543,7 @@ function acceptFood(state: ArcadeState, food: Projectile) {
     * (pour ? TUNING.crateMult : 1);
   const points = Math.round(base * factor) + (craving ? Math.round(TUNING.cravingBonus * (frenzy ? TUNING.frenzyScore : 1)) : 0);
   state.score += points;
-  const restore = (craving ? TUNING.restoreCraved : TUNING.restore) * (gorged ? TUNING.gorgeRestore : 1)
+  const restore = (craving ? TUNING.restoreCraved : TUNING.restore) * grudgingFill * (gorged ? TUNING.gorgeRestore : 1)
     * (1 + TUNING.comboRestore * Math.min(TUNING.comboBonusMax, state.combo - 1))
     / (1 + TUNING.restoreShrink * (creature.size - 1));
   state.hunger = quantize(Math.min(100, state.hunger + restore));

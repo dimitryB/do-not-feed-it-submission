@@ -631,7 +631,7 @@ test("a craving arrives with a clock; serving it pays, calms and pauses growth; 
   assert.ok(sulk.hunger < hunger - TUNING.tantrumHunger + 1, "a tantrum burns what it ate");
 });
 
-test("while it craves, the craved coin curves in and any other coin calms it less: NOT THAT", () => {
+test("while it craves, the craved coin curves in and any other coin fills and calms it less: NOT THAT", () => {
   const craving = fresh(11);
   assert.ok(craving.craving, "a craving by now");
   const wanted = craving.craving.ingredient;
@@ -665,8 +665,8 @@ test("while it craves, the craved coin curves in and any other coin calms it les
   const feed = newEvents(a, from).find((e) => e.type === "feed");
   assert.equal(feed.name, "snub");
   assert.ok(feed.label.startsWith("NOT THAT"));
-  assert.equal(a.hunger, b.hunger, "the wrong coin still fills it");
-  assert.ok(a.rage > b.rage, "but calms it less");
+  assert.ok(a.hunger < b.hunger - 1, "the wrong coin barely fills it");
+  assert.ok(a.rage > b.rage, "and calms it less");
   assert.equal(a.cravingsMet, 0);
 });
 

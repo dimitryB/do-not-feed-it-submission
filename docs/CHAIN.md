@@ -409,7 +409,7 @@ rules' own words for it.
   it; anyone can recompute it from `diet(e)` and check which world a filed
   shift was played in.
 
-### 10.2 The rules — `lib/game/arcade.ts`, GAME_VERSION 10 (7 when this section was written; 8 added the inherited trait, 9 the belly clock, 10 the craving's pull and its grudging calm for any other coin)
+### 10.2 The rules — `lib/game/arcade.ts`, GAME_VERSION 10 (7 when this section was written; 8 added the inherited trait, 9 the belly clock, 10 the craving's pull, a quarter serving for any other coin, and a slower belly)
 
 - `createArcade(seed, inherited: Ingredient | null = null)` and
   `replayArcade(seed, commands, endTick, inherited = null)`. With `inherited`:

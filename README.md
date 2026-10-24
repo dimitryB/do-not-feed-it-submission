@@ -42,7 +42,7 @@ chewing mouth bounces off the teeth.
 
 Every so often it **craves** one coin, and a ring around it says which and for
 how long. The craved coin curves into the mouth on its own; feed it anything
-else while it waits and it eats it grudgingly — **NOT THAT.** Fill the order and
+else while it waits and it barely fills it — **NOT THAT.** Fill the order and
 it calms down and stops growing for a moment; let the ring run out and it
 throws a **MAXI TANTRUM**. One coin all shift is a strategy. It is not a good
 one.

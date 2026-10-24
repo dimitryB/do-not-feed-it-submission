@@ -484,7 +484,7 @@ export function createScene() {
           // A craving met says so. Otherwise it spits back one of the hosts'
           // lines, out of its mouth — at most one every TALK_GAP seconds.
           if (e.craved) say(CAPTIONS.craved, '#ffe28a', 3, time, 48, 0.9);
-          // The wrong coin while it waits: eaten grudgingly, and it says so, over
+          // The wrong coin while it waits: a quarter of a serving, and it says so, over
           // any bank it came in on (the bank still pays; the look is the point).
           else if (e.name === 'snub') say(CAPTIONS.notThat, '#ff9a7a', 5, time, 52, 1.1);
           else if (time - lastTalkAt >= TALK_GAP) {

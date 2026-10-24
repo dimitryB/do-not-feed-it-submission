@@ -64,7 +64,7 @@ export function tokenCopy(label: string): string {
  */
 export const CAPTIONS = {
   craved: 'ORDER FILLED.',
-  // A coin eaten while it was waiting for a different one: eaten, grudgingly, and the look on its face.
+  // A coin eaten while it was waiting for a different one: a quarter of a serving, and the look on its face.
   notThat: 'NOT THAT.',
   gasSpike: 'GAS SPIKE.',
   reverted: 'REVERTED.',

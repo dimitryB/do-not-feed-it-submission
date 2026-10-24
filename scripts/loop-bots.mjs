@@ -339,6 +339,10 @@ const BOTS = {
   // no bank off a prop — which is what "set the cannon at the right angle"
   // means to a person.
   fixedDirect: { fixed: true, direct: true, latency: Math.round(0.25 * TICKS), noise: 4, feedBelow: 80 },
+  // The fixed setting with the space bar held down: fires the moment the
+  // launcher is ready, chewing mouth or not. A person who found HEMI's
+  // straight shot and stopped aiming (Oct 24 play-test: 2:24 on HEMI alone).
+  masher: { fixed: true, direct: true, mash: true, latency: 0, noise: 1, shotGap: 20 },
   moderate: { latency: Math.round(0.25 * TICKS), noise: 4, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
   // The moderate bot with a human's hands: dead on with HEMI's straight shot,
   // loose with Ether's float and worse with Bitcoin's lob. The player who
@@ -445,7 +449,7 @@ export function playShift(name, seed, { trackDensity = false, timeline = false, 
       const frenzy = view.tick < view.frenzyUntil;
       const urgentCraving = view.craving && view.craving.endsAt - view.tick < 180;
       const open = frenzy || view.tick >= view.creature.chewUntil;
-      if (canLaunch(state, config) && open && (view.hunger < config.feedBelow || urgentCraving || frenzy)) {
+      if (canLaunch(state, config) && (config.mash || (open && (view.hunger < config.feedBelow || urgentCraving || frenzy)))) {
         const ingredient = pickIngredient(view);
         const angle = clampAngle(setting.angle + (noise() * 2 - 1) * config.noise);
         if (launchFood(state, ingredient, angle, setting.power)) {
@@ -790,7 +794,8 @@ async function main() {
   // gamer lasts about three minutes. The bot never misses a craving and never
   // fumbles, so it outlasts a person: on Oct 24 a practiced player lasted
   // 2:17 when this bot's median was 3:47, and the gate moved up to keep the
-  // person at three. The never-aiming bot still dies inside a minute and a
+  // person at three (240-360 s since the quarter serving off the craving and
+  // the slower belly). The never-aiming bot still dies inside a minute and a
   // half, and the moderate bot's shift is long but ends.
   report.gates = {
     ...(naive ? {
@@ -798,11 +803,11 @@ async function main() {
       naiveFeedsAtLeast6: naive.feeds.median >= 6,
     } : {}),
     ...(casual ? {
-      casualMedian180to300: between(casual.survival.median, 180, 300),
+      casualMedian240to360: between(casual.survival.median, 240, 360),
       casualDeathSpread: casual.worstBucketShare <= 40,
     } : {}),
     ...(moderate ? {
-      moderateMedian240to480: between(moderate.survival.median, 240, 480),
+      moderateMedian300to600: between(moderate.survival.median, 300, 600),
       moderateAccuracyAtLeast55: moderate.accuracy >= 55,
       moderateFrenziesAtLeast1: moderate.frenzies.mean >= 1,
       moderateDeathSpread: moderate.worstBucketShare <= 40,
