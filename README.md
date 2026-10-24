@@ -16,12 +16,12 @@ tomorrow's creature will be born with whatever the community gave it most.
 **Play:** [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev) · [Ledger](https://do-not-feed-it.pages.dev/ledger) · desktop browser · sound on
 
 **Live status:** practice mode. Hemi filing, shared leaderboards and community
-inheritance will be enabled after contract deployment.
-The production database and verifier are prepared; the wallet-side deployment
-steps are in the [Hemi deployment handoff](docs/HEMI_DEPLOYMENT_HANDOFF.md).
+inheritance await a Pages redeployment with the prepared contract configuration.
+The contract is deployed on Hemi Mainnet and verified on Sourcify; the receipt
+and activation steps are in the [Hemi deployment handoff](docs/HEMI_DEPLOYMENT_HANDOFF.md).
 
 **Free to play.** No wallet, account or token is needed to play, and nothing in
-the game costs anything. Once the contract is deployed, filing a finished shift
+the game costs anything. Once filing is enabled, filing a finished shift
 on Hemi will be optional and require one transaction plus its network gas fee.
 
 ## How to play
@@ -88,7 +88,8 @@ what happened.
 ## The community creature (onchain)
 
 This integration is implemented and tested locally; it is not enabled on the
-live practice site yet. Contract deployment is a separate next step.
+live practice site yet. The contract is deployed; the remaining step is enabling
+its configuration on Pages.
 
 1. **A ticket.** Before a shift the game asks the server for a run id, a seed
    and a snapshot of the community state. A shift is a **trace** — the
@@ -114,8 +115,10 @@ live practice site yet. Contract deployment is a separate next step.
    mutation at level 1 from the first tick: **LAST EPOCH: 61% BTC. TONIGHT IT
    HAS HODL JAWS.**
 
-**Contract:** `FeedRegistry` targets Hemi Mainnet (chain 43111) — _deployment
-pending; the address will be added here_. Source: [contracts/FeedRegistry.sol](contracts/FeedRegistry.sol).
+**Contract:** `FeedRegistry` on Hemi Mainnet (chain 43111):
+[`0x909995303dBC651da54b1ab0FF75024E907039c2`](https://explorer.hemi.xyz/address/0x909995303dBC651da54b1ab0FF75024E907039c2).
+Deployed October 24, 2026 in block `5582556`; [exact source verification on Sourcify](https://repo.sourcify.dev/43111/0x909995303dBC651da54b1ab0FF75024E907039c2).
+Source: [contracts/FeedRegistry.sol](contracts/FeedRegistry.sol).
 
 ### Verifiable, not just signed
 
@@ -172,8 +175,8 @@ pile rules — is in [docs/CHAIN.md](docs/CHAIN.md).
 
 TypeScript, React and canvas on [vinext](https://www.npmjs.com/package/vinext)
 (Vite), hosted on Cloudflare Pages with its full server runtime. The onchain
-backend uses Cloudflare Workers and D1. The production database and server
-verifier are prepared, while the registry address remains unconfigured. The simulation is a pure,
+backend uses Cloudflare Workers and D1. The production database, server verifier
+and deployed registry configuration are prepared; Pages activation is pending. The simulation is a pure,
 fixed-tick, seeded module (`lib/game/`) with no DOM, clock or randomness of its
 own; the renderer (`lib/render/`) only draws it. The contract is Solidity with
 OpenZeppelin's ECDSA and EIP-712, tested with Hardhat; the client and Worker
@@ -207,8 +210,9 @@ The live game uses Cloudflare Pages Advanced Mode, including server rendering
 and the API routes. Its configuration is in
 [`cloudflare/pages/wrangler.jsonc`](cloudflare/pages/wrangler.jsonc). Production
 has a prepared D1 binding and CPU budget, with the verifier key stored only as
-a Cloudflare secret. The registry address and deployment block remain blank,
-so filing stays disabled. Local and preview environments remain unbound practice.
+a Cloudflare secret. The verified registry address, deployment block and genesis
+are configured in source; redeploying Pages activates filing. The currently live
+deployment remains practice-only. Local and preview environments remain unbound practice.
 
 From an authenticated Cloudflare account with access to this Pages project:
 
@@ -222,8 +226,10 @@ and static-asset route exclusions. It also removes Vite's generated Workers
 deployment redirect. Use the Pages command above to deploy this output; a plain
 `wrangler deploy` targets Workers. The build origin also sets social-card URLs.
 
-**Onchain deployment later:** Follow [the deployment guide](docs/CHAIN.md#11-deployment)
-for the contract, D1 migrations, Worker secrets and a production build.
+**Onchain setup:** The current Pages project has its deployment parameters in
+[the handoff](docs/HEMI_DEPLOYMENT_HANDOFF.md); do not deploy a second registry.
+For a separate installation, follow [the deployment guide](docs/CHAIN.md#11-deployment)
+for a new contract, D1 migrations, Worker secrets and a production build.
 `wrangler.example.jsonc` is a template: copy it to `wrangler.production.jsonc`
 and fill in your own account, database and deployed contract settings. Build
 with `DNFI_WRANGLER_CONFIG=wrangler.production.jsonc` and `DNFI_SITE_URL` set to

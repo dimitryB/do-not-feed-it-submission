@@ -1,9 +1,47 @@
-# Deploy FeedRegistry from the Mac holding the wallet key
+# FeedRegistry deployment and Pages activation
 
 The live game is [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev).
-Its Cloudflare production database and server verifier are prepared, but no
-Hemi contract has been deployed yet. Filing stays disabled until the deployment
-receipt is used to finish its configuration.
+FeedRegistry was deployed on Hemi Mainnet on October 24, 2026 and has an exact
+creation and runtime match on [Sourcify](https://repo.sourcify.dev/43111/0x909995303dBC651da54b1ab0FF75024E907039c2).
+It is also [verified on Routescan](https://routescan.io/address/0x909995303dBC651da54b1ab0FF75024E907039c2?chainid=43111).
+Its Cloudflare production database and server verifier are prepared. Filing
+stays disabled on the existing live site until Pages is redeployed with the
+configuration now recorded in `cloudflare/pages/wrangler.jsonc`.
+
+## Completed deployment
+
+| Detail | Value |
+| --- | --- |
+| Registry | `0x909995303dBC651da54b1ab0FF75024E907039c2` |
+| Transaction | [`0xefdd948512507711515e98ae6693e144bf98bc47d1bff4b12f15be0e0343c920`](https://explorer.hemi.xyz/tx/0xefdd948512507711515e98ae6693e144bf98bc47d1bff4b12f15be0e0343c920) |
+| Deployment block | `5582556` |
+| GENESIS | `1792857383` (`2026-10-24T15:56:23Z`) |
+| Owner / deployer | `0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2` |
+| Total transaction fee | `0.000025046673772234 ETH`, including the L1 data fee |
+| Public receipt | [`deployments/hemi-43111.json`](../deployments/hemi-43111.json) |
+
+The transaction input matches the compiled production artifact. Owner,
+verifier, rules version, epoch, genesis and EIP-712 domain were independently
+read back through Hemi's RPC. The contract is unpaused. Hemi Explorer source
+publication remains pending: this Mac's connection cannot complete its TLS
+handshake, and Sourcify's automatic Blockscout submission received a Cloudflare
+403 challenge. Sourcify verification itself completed with exact matches.
+
+When Hemi Explorer is reachable, source publication needs no wallet key:
+
+```sh
+HEMI_RPC_URL=https://rpc.hemi.network/rpc \
+npx hardhat verify blockscout --config hardhat.verify.config.ts --network hemi \
+  --build-profile production --contract contracts/FeedRegistry.sol:FeedRegistry -- \
+  0x909995303dBC651da54b1ab0FF75024E907039c2 \
+  0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2 \
+  0x89B89E32F34b50D3aD1cC7D77D288C8DF4d7e965 \
+  0xbd5cb9462bfe8b7ac0ff0c908581c4548415cee73305e800c238acff185fc2f4 86400
+```
+
+**Do not run another contract deployment for this installation.** Build and
+redeploy Pages using the commands in the README, then check the enabled chain
+configuration, a verifier attestation, a real filing and its public replay.
 
 Keep the deployment wallet key on the Mac where it already lives. The server
 verifier is a separate key, stored as an encrypted production Pages secret.
@@ -26,7 +64,7 @@ version. Use a wallet you intend to retain control of. The verifier account
 does not need funds. The deployment wallet needs ETH on Hemi to pay gas; this
 contract holds no funds and requires no token approvals.
 
-## On the other Mac
+## Reference: deploying a replacement or separate registry
 
 Use Node.js 22.13 or later and this repository's current `main`. For a fresh
 checkout:
@@ -67,6 +105,11 @@ If `DNFI_OWNER` is already exported in that shell, it overrides the deploying
 wallet as owner; check it before running. The script prints the deployer,
 owner, verifier and version before sending the transaction.
 
+For an account check, set `DNFI_EXPECTED_DEPLOYER` to the public address of the
+wallet you intend to unlock. The script refuses a different account before
+sending. Set `DNFI_DEPLOY_DRY_RUN=1` to estimate deployment gas and print the
+parameters without broadcasting or creating a deployment record.
+
 ## Return the public deployment details
 
 Send the resulting **FeedRegistry address and deployment transaction hash**.
@@ -74,10 +117,18 @@ The output also contains the deployment block, `GENESIS`, gas used and the
 exact Blockscout source-verification command. No private key is needed to
 finish the server configuration.
 
+The script also saves a public deployment journal to
+`deployments/hemi-43111.json`: the account and nonce before broadcast, the
+transaction hash immediately after broadcast, then the receipt and verified
+constructor values. It refuses to overwrite that file, so a failed RPC or
+interrupted terminal cannot silently cause a second deployment. A record in
+`prepared` or `broadcast` state must be checked on chain before any retry.
+
 If the script prints a transaction hash and then fails, check that transaction
 before running another deployment; it may already have succeeded.
 
-The remaining steps are to verify the receipt and constructor values, publish
-the source on Hemi Explorer, fill the production registry address/block/genesis,
-redeploy Pages, verify an attestation and test a real filing and public replay.
-The live game will remain in practice mode until those settings are installed.
+For the deployment above, the receipt, constructor values and exact Sourcify
+match are already verified and the Pages configuration is filled. Remaining
+work is Hemi Explorer publication and a Pages redeployment, followed by an
+attestation, real filing and public replay check. The public game remains in
+practice mode until that Pages deployment.

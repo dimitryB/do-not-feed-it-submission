@@ -148,6 +148,65 @@ Production has a 30,000 ms CPU budget; the operator confirmed Workers Paid.
 Local and preview configurations remain unbound practice.
 
 The registry address, deployment block and genesis are deliberately blank.
-No mainnet transaction has been sent: the deployment wallet key remains on
-the operator's other Mac. The live game remains practice-only until a verified
-deployment receipt completes those settings.
+At that stage no mainnet transaction had been sent: the deployment wallet key
+remained on the operator's other Mac. The completed contract deployment is
+recorded below; the live site still awaits its configured Pages redeployment.
+
+## Mac deployment readiness review — October 24, 2026
+
+Confirmed Hemi's RPC chain ID is `43111`. The existing Proof of Patience
+registry (`0xAd093A653B3D9d2612D79cDa5e7A730cf439A0F7`) reports owner
+`0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2`, matching its deployment
+parameters. That account has enough Hemi ETH for the simulated FeedRegistry
+deployment. The live game reports version 10 and the same version hash and
+epoch length as the deployment handoff; filing remains disabled.
+
+All 167 application tests and 31 production-profile contract tests pass, as do
+TypeScript, ESLint and the production build. A local deployment of the updated
+script reads back the constructor values and writes the public receipt.
+Separate checks confirm that dry runs create no deployment record, a wrong
+deployer is refused, and an existing record blocks a repeat deployment.
+
+The deployment script now checks an optional expected account, estimates gas
+and checks the balance, and saves a public journal before broadcast and after
+each receipt/readback step. This addresses the risk of accidentally deploying
+a second copy after an RPC failure. Corrected the outdated feed and score
+bounds in `CHAIN.md`; the Solidity and authoritative game rules are unchanged.
+
+The production dependency audit still reports zero vulnerabilities. The full
+audit now reports 16 affected development packages (13 high, 3 moderate): the
+existing Zod advisory plus three advisories affecting the tooling's Undici
+7.29.1 dependency: [EventSource memory exhaustion](https://github.com/advisories/GHSA-4qv8-2p9j-2685),
+[integrity-token parsing](https://github.com/advisories/GHSA-f72v-6w45-q472), and
+[excessive content-encoding handling](https://github.com/advisories/GHSA-xjj6-f33q-929c).
+Undici 7.30.1 is the reported fix. No dependency migration was performed while
+the mainnet wallet prompt was active. These findings concern local tooling;
+they do not change the contract bytecode or the production audit result.
+
+## Completed mainnet contract deployment — October 24, 2026
+
+FeedRegistry was deployed at
+[`0x909995303dBC651da54b1ab0FF75024E907039c2`](https://explorer.hemi.xyz/address/0x909995303dBC651da54b1ab0FF75024E907039c2)
+in block `5582556`, transaction
+[`0xefdd948512507711515e98ae6693e144bf98bc47d1bff4b12f15be0e0343c920`](https://explorer.hemi.xyz/tx/0xefdd948512507711515e98ae6693e144bf98bc47d1bff4b12f15be0e0343c920).
+The owner and deployer are the existing Proof of Patience owner above; the
+verifier, version 10 and one-day epoch match the prepared server configuration.
+The total fee, including L1 data, was `0.000025046673772234 ETH`.
+
+Independent RPC checks confirmed the receipt, exact creation input, owner,
+verifier, version, genesis, epoch length, EIP-712 domain and unpaused status.
+[Sourcify](https://repo.sourcify.dev/43111/0x909995303dBC651da54b1ab0FF75024E907039c2)
+reports exact creation and runtime matches;
+[Routescan](https://routescan.io/address/0x909995303dBC651da54b1ab0FF75024E907039c2?chainid=43111)
+reports successful source verification. Hemi Explorer publication remains
+pending: its TLS connection failed on this Mac, and Sourcify's automatic
+submission received a Cloudflare 403 challenge. The public compiler input
+contains only the exact contract already published in this MIT repository and
+OpenZeppelin 5.4.0 sources.
+
+The public receipt and verification details are saved in
+[`deployments/hemi-43111.json`](../deployments/hemi-43111.json). The production
+Pages config now contains the verified contract address, deployment block and
+genesis. No Pages deployment or real game filing was performed in this step;
+the existing public deployment remains in practice mode. The handoff contains
+the remaining activation and wallet-free Explorer verification commands.

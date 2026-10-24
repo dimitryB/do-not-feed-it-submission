@@ -1,0 +1,40 @@
+{
+  "status": "success",
+  "chainId": 43111,
+  "network": "hemi",
+  "deployer": "0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2",
+  "nonce": 1,
+  "owner": "0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2",
+  "verifier": "0x89B89E32F34b50D3aD1cC7D77D288C8DF4d7e965",
+  "gameVersion": 10,
+  "gameVersionId": "0xbd5cb9462bfe8b7ac0ff0c908581c4548415cee73305e800c238acff185fc2f4",
+  "epochSeconds": "86400",
+  "initCodeHash": "0xbf49775d1a8914852cc10306450b227ce9da63f968fdc8ef709d0e954bf01a1b",
+  "transactionHash": "0xefdd948512507711515e98ae6693e144bf98bc47d1bff4b12f15be0e0343c920",
+  "contractAddress": "0x909995303dbc651da54b1ab0ff75024e907039c2",
+  "blockNumber": "5582556",
+  "blockHash": "0x7fb20a0c5fc231a0d0c9a79566f011109251cdd7a2e05b3f111fc5ec8ae40927",
+  "gasUsed": "1719217",
+  "effectiveGasPrice": "1000252",
+  "readbackVerified": true,
+  "genesis": "1792857383",
+  "sourceCommit": "ffd444f9b20f180e7ed7c64b617f7f7653fca217",
+  "independentRpcVerified": true,
+  "executionFeeWei": "1719650242684",
+  "l1FeeWei": "23327023529550",
+  "totalFeeWei": "25046673772234",
+  "verification": {
+    "service": "Sourcify",
+    "url": "https://repo.sourcify.dev/43111/0x909995303dbc651da54b1ab0ff75024e907039c2",
+    "creationMatch": "exact_match",
+    "runtimeMatch": "exact_match",
+    "verifiedAt": "2026-10-24T16:01:16Z",
+    "verificationId": "d00ffea8-26d1-40cb-8553-1edcdf4d44fc",
+    "blockscoutStatus": "pending: local network TLS failure; automatic Sourcify submission received HTTP 403 Cloudflare challenge",
+    "routescanStatus": {
+      "status": "1",
+      "message": "OK",
+      "result": "Pass - Verified"
+    }
+  }
+}

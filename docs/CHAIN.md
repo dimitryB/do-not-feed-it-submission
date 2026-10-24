@@ -6,8 +6,9 @@ the Worker, the client and the tests; change it first, then the code.
 
 The contract, Worker, client and local test harness are implemented in this
 repository. The [public practice game](https://do-not-feed-it.pages.dev) is live
-on Cloudflare Pages. Hemi Mainnet contract deployment remains pending; record
-its address in the README after deployment and public verification.
+on Cloudflare Pages. FeedRegistry is deployed on Hemi Mainnet at
+[`0x909995303dBC651da54b1ab0FF75024E907039c2`](https://repo.sourcify.dev/43111/0x909995303dBC651da54b1ab0FF75024E907039c2),
+with exact source verification on Sourcify. Pages activation remains pending.
 D-numbers (D183, …) are historical references to the development decision
 register, which is not included in this submission.
 
@@ -156,10 +157,11 @@ OpenZeppelin EIP712 + Ownable2Step + Pausable (as V0). Solidity 0.8.28, paris.
   - version: `r.gameVersion == activeGameVersion`;
   - window: `block.timestamp ≤ r.deadline ≤ block.timestamp + SIGNATURE_WINDOW (30 min)`;
   - bounds: `durationTicks ≤ 43_200`, `durationTicks ≥ 1`,
-    `totalFeeds ≤ durationTicks / 15 + 1`, `btc + eth + hemi == totalFeeds`,
+    `totalFeeds ≤ durationTicks / 15 + 1 + 3 × (durationTicks / 120 + 1)`,
+    `btc + eth + hemi == totalFeeds`,
     `bestCombo ≤ totalFeeds`, `frenzies ≤ totalFeeds / 5 + 1`,
     `sizeCenti ≤ 1_000`, `ending ≤ 3`, `cause ≤ 2`,
-    `score ≤ uint64(durationTicks) × 2_000` (loose: the theoretical maximum per
+    `score ≤ uint256(durationTicks) × 4_000` (loose: the theoretical maximum per
     tick is far lower; `test/FeedRegistry.ts` derives the real ceiling from
     TUNING and asserts it is under the bound);
   - signatures: player over the result digest; verifier over the attestation;
@@ -497,16 +499,18 @@ rules' own words for it.
 The current [live game](https://do-not-feed-it.pages.dev) runs in practice mode
 on Cloudflare Pages, with [the ledger page](https://do-not-feed-it.pages.dev/ledger)
 showing that filing is disabled. Its production database and verifier are
-prepared, but no registry address or deployment block is configured.
+prepared. The contract is deployed and the source Pages configuration now
+contains its address, deployment block and genesis; that configuration has not
+yet been redeployed to the public site.
 See [the practice deployment instructions](../README.md#deploy-the-practice-game)
-for Pages builds and uploads. Hemi contract deployment remains a separate step.
+for Pages builds and uploads.
 
-The database migrations and production-only verifier secret are now prepared.
-For deployment from the Mac holding the wallet key, use the
-[mainnet deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md). No registry address is
-configured yet, so the public game remains in practice mode.
+The database migrations and production-only verifier secret are prepared.
+The receipt and current activation steps are in the
+[mainnet deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md). Do not redeploy the
+registry to activate the site.
 
-The rest of this section describes the future onchain deployment.
+The rest of this section is a reference for a separate onchain installation.
 
 These commands are an operator guide. Publishing this repository does not
 deploy a contract or a site. Use Node.js and npm versions supported by
