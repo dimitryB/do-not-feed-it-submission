@@ -12,6 +12,7 @@ import { REST_MOUTH, apertureOf, bodyField, placeAperture, toArena, toPainting, 
 import type { CreaturePose } from "./pose";
 import { silhouettePath, type CreatureRig } from "./rig";
 import { buildField, drawWarped, localTransform, placePoint, WARP_REGION, type WarpField } from "./warp";
+import { paintBlurred } from "../canvasBlur";
 
 const clamp01 = (value: number) => (value < 0 ? 0 : value > 1 ? 1 : value);
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -66,6 +67,14 @@ function aperturePath(context: CanvasRenderingContext2D, shape: Aperture, grow =
   context.quadraticCurveTo(shape.centerX, shape.upperControl - grow * 1.9, shape.rightX + grow, shape.rightY);
   context.quadraticCurveTo(shape.centerX, shape.lowerControl + grow * 1.9, shape.leftX - grow, shape.leftY);
   context.closePath();
+}
+
+/** Includes the control points as well as the lip, leaving room for its stroke. */
+function apertureBounds(shape: Aperture, padding = 20) {
+  const top = Math.min(shape.leftY, shape.rightY, shape.upperControl);
+  const bottom = Math.max(shape.leftY, shape.rightY, shape.lowerControl);
+  return { x: shape.leftX - padding, y: top - padding,
+    width: shape.rightX - shape.leftX + padding * 2, height: bottom - top + padding * 2 };
 }
 
 /** Point and tangent angle on one of the two lip curves. */
@@ -191,13 +200,12 @@ function drawLips(context: CanvasRenderingContext2D, pose: CreaturePose, shape: 
   // and that mismatch is what makes an open mouth read as clip art pasted onto
   // a photograph however well the inside of it is drawn. Blurring the join is
   // most of the fix.
-  context.save();
-  context.filter = "blur(6px)";
-  context.strokeStyle = "rgba(96,84,34,0.5)";
-  context.lineWidth = thickness * 2.1;
-  aperturePath(context, shape, thickness * 1.15);
-  context.stroke();
-  context.restore();
+  paintBlurred(context, 6, apertureBounds(shape, thickness * 4), (blur) => {
+    blur.strokeStyle = "rgba(96,84,34,0.5)";
+    blur.lineWidth = thickness * 2.1;
+    aperturePath(blur, shape, thickness * 1.15);
+    blur.stroke();
+  });
 
   // Outer roll of the lip: shaded from above, catching the amber lamp below.
   const roll = context.createLinearGradient(0, shape.upperApex - thickness, 0, shape.lowerApex + thickness);
@@ -214,14 +222,13 @@ function drawLips(context: CanvasRenderingContext2D, pose: CreaturePose, shape: 
   // The seam itself, blurred by a pixel so it is a crease rather than an inked
   // outline. It sits just inside the opening, its outer edge on the lips'
   // line: the dark that reads as "mouth" ends where the rules' opening ends.
-  context.save();
-  context.filter = "blur(1.1px)";
-  context.strokeStyle = "rgba(18,8,2,0.62)";
   const seam = Math.max(2, thickness * 0.45);
-  context.lineWidth = seam;
-  aperturePath(context, shape, -seam / 2);
-  context.stroke();
-  context.restore();
+  paintBlurred(context, 1.1, apertureBounds(shape), (blur) => {
+    blur.strokeStyle = "rgba(18,8,2,0.62)";
+    blur.lineWidth = seam;
+    aperturePath(blur, shape, -seam / 2);
+    blur.stroke();
+  });
 
   // Wet highlight, only on the middle of the lower lip. Following the whole
   // aperture drew a second arc across the chin that read as a ghost mouth.
@@ -324,27 +331,25 @@ function drawMouth(context: CanvasRenderingContext2D, rig: CreatureRig, pose: Cr
 
     // Gum ridges, drawn over the tooth roots so the row is seated in flesh
     // instead of ending on the straight edge where the clip cuts it.
-    context.save();
-    context.lineCap = "round";
-    context.strokeStyle = `rgba(96,42,40,${0.7 + 0.2 * open})`;
-    context.lineWidth = 11;
-    context.filter = "blur(2px)";
-    aperturePath(context, shape, -3);
-    context.stroke();
-    context.strokeStyle = "rgba(150,74,68,0.32)";
-    context.lineWidth = 4;
-    aperturePath(context, shape, -6.5);
-    context.stroke();
-    context.restore();
+    paintBlurred(context, 2, apertureBounds(shape), (blur) => {
+      blur.lineCap = "round";
+      blur.strokeStyle = `rgba(96,42,40,${0.7 + 0.2 * open})`;
+      blur.lineWidth = 11;
+      aperturePath(blur, shape, -3);
+      blur.stroke();
+      blur.strokeStyle = "rgba(150,74,68,0.32)";
+      blur.lineWidth = 4;
+      aperturePath(blur, shape, -6.5);
+      blur.stroke();
+    });
 
     // The lip has thickness, so the rim falls away into shadow.
-    context.save();
-    context.strokeStyle = "rgba(12,4,1,0.8)";
-    context.lineWidth = 15;
-    context.filter = "blur(5px)";
-    aperturePath(context, shape);
-    context.stroke();
-    context.restore();
+    paintBlurred(context, 5, apertureBounds(shape), (blur) => {
+      blur.strokeStyle = "rgba(12,4,1,0.8)";
+      blur.lineWidth = 15;
+      aperturePath(blur, shape);
+      blur.stroke();
+    });
     context.restore();
   } else if (pose.teethBare > 0.05) {
     // Mouth shut but the teeth are out: they overhang the lip.
@@ -562,22 +567,24 @@ function drawEyes(context: CanvasRenderingContext2D, rig: CreatureRig, pose: Cre
       // The rolled margin of the lid catches the lamp, and the lash line under
       // it is a crease rather than an outline. Without these the lid is a flat
       // shape laid on the eye instead of a piece of the same head.
-      context.save();
-      context.filter = "blur(1.4px)";
-      context.strokeStyle = "rgba(214,196,132,0.3)";
-      context.lineWidth = 3;
-      context.beginPath();
-      context.moveTo(left, lip - Math.sign(bulge) * 3.2);
-      context.quadraticCurveTo(eye.x, lip + bulge - Math.sign(bulge) * 3.2, right, lip - Math.sign(bulge) * 3.2);
-      context.stroke();
-      context.filter = "blur(0.8px)";
-      context.strokeStyle = "rgba(24,18,4,0.55)";
-      context.lineWidth = 2.2;
-      context.beginPath();
-      context.moveTo(left, lip);
-      context.quadraticCurveTo(eye.x, lip + bulge, right, lip);
-      context.stroke();
-      context.restore();
+      const edgeBounds = { x: left - 4, y: lip - Math.abs(bulge) - 8,
+        width: right - left + 8, height: Math.abs(bulge) * 2 + 16 };
+      paintBlurred(context, 1.4, edgeBounds, (blur) => {
+        blur.strokeStyle = "rgba(214,196,132,0.3)";
+        blur.lineWidth = 3;
+        blur.beginPath();
+        blur.moveTo(left, lip - Math.sign(bulge) * 3.2);
+        blur.quadraticCurveTo(eye.x, lip + bulge - Math.sign(bulge) * 3.2, right, lip - Math.sign(bulge) * 3.2);
+        blur.stroke();
+      });
+      paintBlurred(context, 0.8, edgeBounds, (blur) => {
+        blur.strokeStyle = "rgba(24,18,4,0.55)";
+        blur.lineWidth = 2.2;
+        blur.beginPath();
+        blur.moveTo(left, lip);
+        blur.quadraticCurveTo(eye.x, lip + bulge, right, lip);
+        blur.stroke();
+      });
     };
 
     // `from` reaches well clear of the eye: a lid whose far edge sits just
@@ -609,14 +616,16 @@ function drawEyes(context: CanvasRenderingContext2D, rig: CreatureRig, pose: Cre
       context.translate(-pivotX, -pivotY);
       // Blurred hard: a crisp lens of solid colour above the eye reads as a
       // leaf stuck to the face. As a soft shadow it reads as a lowered brow.
-      context.filter = "blur(5px)";
       context.globalAlpha = Math.min(0.5, pose.browAngry * 0.5 + pose.browSad * 0.28);
-      context.fillStyle = "rgba(28,22,6,0.85)";
-      context.beginPath();
-      context.moveTo(eye.x - eye.rx - 7, eye.y - eye.ry - 3);
-      context.quadraticCurveTo(eye.x, eye.y - eye.ry - 13, eye.x + eye.rx + 7, eye.y - eye.ry - 3);
-      context.quadraticCurveTo(eye.x, eye.y - eye.ry - 6, eye.x - eye.rx - 7, eye.y - eye.ry - 3);
-      context.fill();
+      paintBlurred(context, 5, { x: eye.x - eye.rx - 7, y: eye.y - eye.ry - 13,
+        width: eye.rx * 2 + 14, height: 13 }, (blur) => {
+        blur.fillStyle = "rgba(28,22,6,0.85)";
+        blur.beginPath();
+        blur.moveTo(eye.x - eye.rx - 7, eye.y - eye.ry - 3);
+        blur.quadraticCurveTo(eye.x, eye.y - eye.ry - 13, eye.x + eye.rx + 7, eye.y - eye.ry - 3);
+        blur.quadraticCurveTo(eye.x, eye.y - eye.ry - 6, eye.x - eye.rx - 7, eye.y - eye.ry - 3);
+        blur.fill();
+      });
       context.restore();
     }
 
@@ -981,15 +990,17 @@ function drawExhale(context: CanvasRenderingContext2D, pose: CreaturePose, shape
   context.save();
   context.globalCompositeOperation = "screen";
   context.globalAlpha = pose.exhale * 0.55 * pulse;
-  context.filter = "blur(9px)";
-  const spill = context.createRadialGradient(shape.centerX, midY, gap * 0.3,
-                                             shape.centerX, midY, gap * 2.1);
-  spill.addColorStop(0, "rgba(255,176,88,0.55)");
-  spill.addColorStop(1, "rgba(255,140,50,0)");
-  context.fillStyle = spill;
-  context.beginPath();
-  context.ellipse(shape.centerX, midY, gap * 2.1, gap * 1.5, 0, 0, Math.PI * 2);
-  context.fill();
+  paintBlurred(context, 9, { x: shape.centerX - gap * 2.1, y: midY - gap * 1.5,
+    width: gap * 4.2, height: gap * 3 }, (blur) => {
+    const spill = blur.createRadialGradient(shape.centerX, midY, gap * 0.3,
+                                               shape.centerX, midY, gap * 2.1);
+    spill.addColorStop(0, "rgba(255,176,88,0.55)");
+    spill.addColorStop(1, "rgba(255,140,50,0)");
+    blur.fillStyle = spill;
+    blur.beginPath();
+    blur.ellipse(shape.centerX, midY, gap * 2.1, gap * 1.5, 0, 0, Math.PI * 2);
+    blur.fill();
+  });
   context.restore();
 }
 

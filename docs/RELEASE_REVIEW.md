@@ -76,6 +76,24 @@ lockfile install. The
 production audit blocks high/critical findings; the full tooling audit reports
 the known upstream highs and blocks critical findings.
 
+## Firefox rendering follow-up — October 24, 2026
+
+On the Safari graphics branch, Playwright Firefox 146.0.1 passes blur/mask pixel
+checks, all 25 creature poses, changing animation frames, launch and pause/resume
+at device pixel ratios 1 and 2. Captures show no broken graphics, and no browser
+or scene errors were recorded. The viewport was 1366 × 900.
+
+Retina animation performance remains a follow-up: warmed balloon/pepper poses
+took roughly 44–53 ms per draw on the local test machine, with similar results
+in headless and visible Firefox. At DPR 1 the same poses took roughly 16–21 ms.
+The cost spans body warping and mouth/face effects. These are local development
+measurements, not a frame-rate guarantee for every Firefox installation. The
+compatibility pass therefore does not establish smooth Retina performance.
+
+Repeat with `npm run test:render -- --browser firefox --dpr 2 --profile`;
+add `--headed` to inspect a visible browser. The default rendering check now
+includes Chromium, Firefox and WebKit.
+
 ## Publication checks
 
 The candidate files were scanned for credential blocks, common service tokens,

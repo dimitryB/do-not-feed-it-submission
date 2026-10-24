@@ -14,7 +14,13 @@ export function GameCanvas({runRef,angle,selected,playing,reduced,guideSteps,sea
     const canvas=canvasRef.current;if(!canvas)return;
     const context=canvas.getContext('2d');if(!context)return;
     const scene=createScene();sceneRef.current=scene;let frame=0;let disposed=false;let seenHit=0;const drawErrors=new Set<string>();
-    const resize=()=>{const rect=canvas.getBoundingClientRect();const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);};
+    const resize=()=>{
+      const rect=canvas.getBoundingClientRect();const dpr=Math.min(window.devicePixelRatio||1,2);
+      const width=Math.round(rect.width*dpr),height=Math.round(rect.height*dpr);
+      // Assigning either dimension clears the bitmap and all drawing state.
+      if(canvas.width!==width)canvas.width=width;
+      if(canvas.height!==height)canvas.height=height;
+    };
     const observer=new ResizeObserver(resize);observer.observe(canvas);resize();
     const draw=(now:number)=>{
       if(disposed)return;
@@ -35,8 +41,10 @@ export function GameCanvas({runRef,angle,selected,playing,reduced,guideSteps,sea
       catch(error){
         const message=error instanceof Error?error.message:String(error);
         if(!drawErrors.has(message)){drawErrors.add(message);console.error('[scene] draw failed:',error);}
-        // Unwind whatever save()s the failed frame left open.
-        (context as CanvasRenderingContext2D&{reset?:()=>void}).reset?.();
+        // Clear clips and the save stack even where the reset API is absent.
+        const reset=(context as CanvasRenderingContext2D&{reset?:()=>void}).reset;
+        if(typeof reset==='function')reset.call(context);
+        else canvas.width=canvas.width;
       }
       if(DEV_HOOKS){const cost=performance.now()-started;recordDrawCost(cost);recordFrameProfile(frameCells.count,0,cost);}
       frame=requestAnimationFrame(draw);

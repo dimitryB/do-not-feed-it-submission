@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:render": "node scripts/browser-render-check.mjs",
     "test:db": "node --experimental-strip-types --test tests/chain-state.test.mjs",
     "test:chain": "node --experimental-strip-types --test tests/chain-state.test.mjs tests/verifier.test.mjs tests/chain-api.test.mjs",
     "test:contract": "hardhat test nodejs --build-profile production",
