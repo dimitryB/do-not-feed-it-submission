@@ -106,8 +106,10 @@ export const TUNING = Object.freeze({
   /**
    * Appetite. The belly drains with size, with time on shift, and with appetite.
    *
-   * Paced for a person who is not a gamer: the casual bot's median shift
-   * is about three minutes, the never-aiming bot's a little over one. At 0.06
+   * Paced for a person who is not a gamer to last about three minutes, which
+   * puts the casual bot (no fumbles, every craving followed) nearer four and
+   * the never-aiming bot's a little over one. The per-minute term was 0.04
+   * until play-testing on Oct 24 (2:17 for a practiced player). At 0.06
    * the base alone asked for 0.45 servings a second from the first tick, which
    * a casual hand (0.35 a second, measured) never had; the per-minute term is
    * what ends a shift that was holding.
@@ -116,7 +118,7 @@ export const TUNING = Object.freeze({
   graceTicks: 300,
   drainBase: 0.048,
   drainPerSize: 0.008,
-  drainPerMinute: 0.04,
+  drainPerMinute: 0.035,
   /**
    * One number per seed: a hungrier or a lazier creature, 0.7–1.3×.
    * Spreads the deaths. At 0.5–1.5× the draw outweighed the player: the same

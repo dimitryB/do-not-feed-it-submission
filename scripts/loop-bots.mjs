@@ -376,8 +376,8 @@ function mutationCount(state) {
  * Plays one shift. `trackDensity` turns on the every-tick evaluation of the
  * best action, which is too slow to leave on for every run.
  */
-export function playShift(name, seed, { trackDensity = false, timeline = false, inherited = null } = {}) {
-  const config = BOTS[name];
+export function playShift(name, seed, { trackDensity = false, timeline = false, inherited = null, configOverride = null } = {}) {
+  const config = configOverride ? { ...BOTS[name], ...configOverride } : BOTS[name];
   const noise = stream(seed ^ 0x5bf03635);
   const state = createArcade(seed, inherited);
   const commands = [];
@@ -529,7 +529,9 @@ export function playShift(name, seed, { trackDensity = false, timeline = false, 
         }
         if (action && action.verb === "launch" && !switching) {
           loaded = action.ingredient; switchReady = null;
-          const jitter = (noise() * 2 - 1) * (config.noiseBy?.[action.ingredient] ?? config.noise);
+          let jitter = (noise() * 2 - 1) * (config.noiseBy?.[action.ingredient] ?? config.noise);
+          // A fumbled shot now and then, wide enough to miss outright: a person's hands, not a bot's.
+          if (config.fumble && noise() < config.fumble) jitter += (noise() < 0.5 ? -1 : 1) * (10 + 10 * noise());
           const angle = clampAngle(action.angle + jitter);
           if (launchFood(state, action.ingredient, angle, action.power)) {
             commands.push({ tick: state.tick, kind: "launch", ingredient: action.ingredient, angle, power: action.power });
@@ -785,15 +787,18 @@ async function main() {
   // "Not before N s" on a median that may be "never": never is after N.
   const notBefore = (value, low) => value === null || value >= low;
   // Shift length is gated on the casual bot since D174: a person who is not a
-  // gamer lasts about three minutes. The never-aiming bot still dies inside
-  // a minute and a half, and the moderate bot's shift is long but ends.
+  // gamer lasts about three minutes. The bot never misses a craving and never
+  // fumbles, so it outlasts a person: on Oct 24 a practiced player lasted
+  // 2:17 when this bot's median was 3:47, and the gate moved up to keep the
+  // person at three. The never-aiming bot still dies inside a minute and a
+  // half, and the moderate bot's shift is long but ends.
   report.gates = {
     ...(naive ? {
       naiveMedian40to80: between(naive.survival.median, 40, 80),
       naiveFeedsAtLeast6: naive.feeds.median >= 6,
     } : {}),
     ...(casual ? {
-      casualMedian150to240: between(casual.survival.median, 150, 240),
+      casualMedian180to300: between(casual.survival.median, 180, 300),
       casualDeathSpread: casual.worstBucketShare <= 40,
     } : {}),
     ...(moderate ? {
