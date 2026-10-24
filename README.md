@@ -25,6 +25,12 @@ the game costs anything. Filing a finished shift on Hemi is optional and
 requires one transaction plus its network gas fee. Finish a shift and choose
 **File this shift** to record it with your wallet.
 
+**Known MetaMask warning (October 24, 2026):** MetaMask has displayed a
+phishing/wallet-draining warning when connecting to this site. A
+classification-review request was submitted to Blockaid on October 24; the
+warning remains unresolved. The game is fully playable without a wallet, so
+reviewers can play without connecting. Onchain score filing is optional.
+
 ## How to play
 
 | | |
