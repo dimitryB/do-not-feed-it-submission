@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   ARENA, BOUNCERS, FOODS, TUNING, GAME_VERSION, bankMultiplier, cooldownFor, createArcade, drainPerTick, launchSpeed,
-  endingFor, flameCone, getHazard, launchFood, levelFor, mouthIsTeeth, previewFlight, probeFlight, replayArcade, servingsForLevel, slamHatch,
+  endingFor, flameCone, getHazard, launchFood, levelFor, mouthIsTeeth, previewFlight, probeFlight, pressE, replayArcade, servingsForLevel, slamHatch,
   stepArcade,
 } from "../lib/game/arcade.ts";
+import { PRESS_E_EVERY, PRESS_E_FIRST, PRESS_E_FLIGHT, PRESS_E_OPEN } from "../lib/game/pressE.ts";
+import { decodeTrace, encodeTrace, validateTrace } from "../lib/chain/trace.ts";
 
 const GRAVITY = 0.16;
 
@@ -130,8 +132,8 @@ function mutate(state, ingredient, level) {
   assert.equal(state.mutations[ingredient], level);
 }
 
-test("the version is 10, the shift is endless, and the pillars' constants hold", () => {
-  assert.equal(GAME_VERSION, 10);
+test("the version is 11, the shift is endless, and the pillars' constants hold", () => {
+  assert.equal(GAME_VERSION, 11);
   assert.equal(ARENA.maxTicks, 43200);
   assert.equal(ARENA.cooldownTicks, 30);
   assert.equal(ARENA.frenzyCooldownTicks, 15);
@@ -668,6 +670,72 @@ test("while it craves, the craved coin curves in and any other coin fills and ca
   assert.ok(a.hunger < b.hunger - 1, "the wrong coin barely fills it");
   assert.ok(a.rage > b.rage, "and calms it less");
   assert.equal(a.cravingsMet, 0);
+});
+
+/** Steps to `tick` with the belly held up, so a test can reach the later PRESS E signs alive. */
+function advanceFed(state, tick, hunger = 80) {
+  while (state.tick < tick && state.phase === "playing") { state.hunger = hunger; stepArcade(state); }
+}
+
+test("PRESS E works while the sign is up, once per sign, and tops a hungry belly up to the cap", () => {
+  const state = createArcade(5);
+  advanceFed(state, PRESS_E_FIRST - 1);
+  assert.equal(pressE(state), false, "no sign yet: nothing happens");
+  advanceFed(state, PRESS_E_FIRST + 10);
+  state.hunger = 30;
+  const from = state.nextEventId;
+  assert.equal(pressE(state), true);
+  assert.equal(state.hunger, TUNING.pressECap);
+  const hit = state.events.filter((e) => e.id >= from).find((e) => e.type === "presse");
+  assert.equal(hit.name, "refill");
+  assert.equal(hit.value, TUNING.pressECap - 30);
+  assert.equal(pressE(state), false, "one hit per sign");
+  advanceFed(state, PRESS_E_FIRST + PRESS_E_FLIGHT + PRESS_E_OPEN);
+  assert.equal(pressE(state), false, "the sign has gone");
+
+  // The next sign: a nearly full belly is topped up to the cap and no further.
+  advanceFed(state, PRESS_E_FIRST + PRESS_E_EVERY + 5);
+  state.hunger = TUNING.pressECap - 5;
+  assert.equal(pressE(state), true);
+  assert.equal(state.hunger, TUNING.pressECap);
+  // And the one after: a full belly gets nothing, and the sign is spent anyway.
+  advanceFed(state, PRESS_E_FIRST + 2 * PRESS_E_EVERY + 5);
+  state.hunger = TUNING.pressECap;
+  assert.equal(pressE(state), true);
+  assert.equal(state.hunger, TUNING.pressECap);
+  assert.equal(state.events.at(-1).name, "full");
+  assert.equal(pressE(state), false);
+  assert.equal(state.pressEHits, 3);
+});
+
+test("a PRESS E hit is a trace command: it replays, encodes, and is refused with no sign up", () => {
+  // A shift that waits for the first sign with a hungry creature, presses E, then keeps going.
+  const live = createArcade(9);
+  const commands = [];
+  advance(live, PRESS_E_FIRST + 20);
+  const before = live.hunger;
+  assert.ok(before < TUNING.pressECap, "hungry by the first sign");
+  assert.ok(pressE(live));
+  commands.push({ tick: live.tick, kind: "e" });
+  advance(live, PRESS_E_FIRST + 200);
+  const replayed = replayArcade(9, commands, live.tick);
+  assert.equal(replayed.hunger, live.hunger);
+  assert.equal(replayed.pressEHits, 1);
+  assert.equal(replayed.phase, live.phase);
+  // Without the hit, the belly is lower: the command is what changed it.
+  const without = replayArcade(9, [], live.tick);
+  assert.ok(without.phase !== "playing" || without.hunger < replayed.hunger);
+
+  // The canonical bytes carry it as kind 2, and decode back to the same command.
+  const bytes = encodeTrace(commands, live.tick);
+  assert.equal(bytes[7 + 4], 2);
+  assert.deepEqual(decodeTrace(bytes), { commands, endTick: live.tick });
+  validateTrace([{ tick: 5, kind: "launch", ingredient: "metal", angle: -30, power: 12 }, { tick: 9, kind: "e" }], 20);
+  assert.throws(() => validateTrace([{ tick: 5, kind: "E" }], 20));
+
+  // Replayed outside a sign, or twice on one sign, the trace is refused.
+  assert.throws(() => replayArcade(9, [{ tick: 10, kind: "e" }], 100), /Rejected/);
+  assert.throws(() => replayArcade(9, [...commands, { tick: commands[0].tick + 1, kind: "e" }], live.tick), /Rejected/);
 });
 
 test("beats: a lunge nobody stops eats the vent, which then swings under the ceiling as a bank", () => {

@@ -55,7 +55,7 @@ export { goldenDigests } from "./tests/support/detmath-goldens.mjs";`,
 });
 
 // Commands as [tick, kind, ingredient, angle, power] to keep the page small.
-const KIND = { launch: 0, hatch: 1 };
+const KIND = { launch: 0, hatch: 1, e: 2 };
 const FOOD = { metal: 0, balloon: 1, pepper: 2 };
 const data = {
   gameVersion: rules.GAME_VERSION,
@@ -64,7 +64,7 @@ const data = {
   golden: goldenDigests(detmath),
   traces: traces.map((t) => ({
     name: t.name, seed: t.seed, inherited: t.inherited, endTick: t.endTick,
-    commands: t.commands.map((c) => c.kind === "hatch" ? [c.tick, 1] : [c.tick, KIND.launch, FOOD[c.ingredient], c.angle, c.power]),
+    commands: t.commands.map((c) => c.kind === "launch" ? [c.tick, KIND.launch, FOOD[c.ingredient], c.angle, c.power] : [c.tick, KIND[c.kind]]),
     expect: t.expect,
   })),
 };
@@ -107,7 +107,7 @@ const DATA = ${JSON.stringify(data)};
   for (const t of DATA.traces) {
     await new Promise((r) => setTimeout(r, 0));
     const trace = { seed: t.seed, inherited: t.inherited, endTick: t.endTick,
-      commands: t.commands.map((c) => c[1] === 1 ? { tick: c[0], kind: "hatch" } : { tick: c[0], kind: "launch", ingredient: FOOD[c[2]], angle: c[3], power: c[4] }) };
+      commands: t.commands.map((c) => c[1] === 1 ? { tick: c[0], kind: "hatch" } : c[1] === 2 ? { tick: c[0], kind: "e" } : { tick: c[0], kind: "launch", ingredient: FOOD[c[2]], angle: c[3], power: c[4] }) };
     const got = DNFI.digestReplay(DNFI.rules, trace);
     const at = got.checkpoints.findIndex((d, i) => d !== t.expect.checkpoints[i]);
     const same = at < 0 && got.checkpoints.length === t.expect.checkpoints.length && got.final === t.expect.final && got.signed === t.expect.signed;

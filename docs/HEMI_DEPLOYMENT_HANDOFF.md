@@ -95,6 +95,32 @@ that affects a run's outcome **must increase `GAME_VERSION`** and have the
 contract owner rotate `activeGameVersion` before filings use the new rules.
 Keep the version 10 source available for replay.
 
+## Version 11 (PRESS E) activation
+
+Version 11 makes a PRESS E hit a recorded command that fills a hungry belly back up to 100%.
+No shift was filed under version 10, so nothing is lost by moving on. Activate
+it from the merged commit, in this order:
+
+1. Rotate the registry (owner key, on the Mac that holds it). A dry run first:
+
+   ```sh
+   DNFI_CONTRACT_ADDRESS=0x909995303dBC651da54b1ab0FF75024E907039c2 DNFI_DRY_RUN=1 \
+     npx hardhat run scripts/set-game-version.ts --network hemi
+   DNFI_CONTRACT_ADDRESS=0x909995303dBC651da54b1ab0FF75024E907039c2 \
+     npx hardhat run scripts/set-game-version.ts --network hemi
+   ```
+
+   It refuses unless the unlocked account is the owner, and reads the new
+   `activeGameVersion` back (`gameVersionId(11)` =
+   `0x2cc3ff22f4a6d4ba3321e3e2d4a896d246108366ac43b4fb249c8ba706724cd5`).
+2. Redeploy Pages from the same commit with the README's Pages commands.
+3. Play a live shift, press E on a sign, file it, and check the receipt and
+   `verify-filing.mjs` replay as above. Record version 11 the way
+   `deployments/game-version-10.json` records version 10.
+
+Between steps 1 and 2 the live site still signs version 10 results, which the
+registry now refuses (`WrongVersion`); keep the gap short.
+
 ## Deployment parameters
 
 | Parameter | Value |

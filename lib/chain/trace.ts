@@ -5,15 +5,17 @@
  *
  * Layout, big-endian:
  *   u8 version (1) · u32 endTick · u16 count ·
- *   count × ( u32 tick · u8 kind [0 launch, 1 hatch] · u8 ingredient
+ *   count × ( u32 tick · u8 kind [0 launch, 1 hatch, 2 press E] · u8 ingredient
  *             [0 metal, 1 balloon, 2 pepper, 255 none] · i8 angle · u8 power )
  */
 import { keccak256, type Hex } from "viem";
 import { ARENA, FOODS, type ArcadeCommand, type Ingredient } from "../game/arcade.ts";
+import { PRESS_E_EVERY } from "../game/pressE.ts";
 
 export const TRACE_VERSION = 1;
-/** The rules' own cap, re-derived: one launch per frenzy cooldown plus one hatch per hatch cooldown, plus two. */
-export const MAX_COMMANDS = Math.ceil(ARENA.maxTicks / ARENA.frenzyCooldownTicks) + Math.ceil(ARENA.maxTicks / ARENA.hatchCooldown) + 2;
+/** The rules' own cap, re-derived: one launch per frenzy cooldown, one hatch per hatch cooldown and one E per sign, plus two. */
+export const MAX_COMMANDS = Math.ceil(ARENA.maxTicks / ARENA.frenzyCooldownTicks) + Math.ceil(ARENA.maxTicks / ARENA.hatchCooldown)
+  + Math.ceil(ARENA.maxTicks / PRESS_E_EVERY) + 2;
 const HEADER_BYTES = 1 + 4 + 2;
 const COMMAND_BYTES = 4 + 1 + 1 + 1 + 1;
 export const MAX_TRACE_BYTES = HEADER_BYTES + MAX_COMMANDS * COMMAND_BYTES;
@@ -38,7 +40,7 @@ export function validateTrace(commands: unknown, endTick: unknown): asserts comm
       if (!FOODS.includes(c.ingredient as Ingredient)) throw new Error("Invalid trace");
       if (!Number.isInteger(c.angle) || (c.angle as number) < ARENA.minAngle || (c.angle as number) > ARENA.maxAngle) throw new Error("Invalid trace");
       if (!Number.isInteger(c.power) || (c.power as number) < ARENA.minPower || (c.power as number) > ARENA.maxPower) throw new Error("Invalid trace");
-    } else if (c.kind !== "hatch") {
+    } else if (c.kind !== "hatch" && c.kind !== "e") {
       throw new Error("Invalid trace");
     }
     previous = c.tick as number;
@@ -60,7 +62,7 @@ export function encodeTrace(commands: readonly ArcadeCommand[], endTick: number)
       view.setUint8(offset, 0); view.setUint8(offset + 1, INGREDIENT_CODE[command.ingredient]);
       view.setInt8(offset + 2, command.angle); view.setUint8(offset + 3, command.power);
     } else {
-      view.setUint8(offset, 1); view.setUint8(offset + 1, 255); view.setInt8(offset + 2, 0); view.setUint8(offset + 3, 0);
+      view.setUint8(offset, command.kind === "e" ? 2 : 1); view.setUint8(offset + 1, 255); view.setInt8(offset + 2, 0); view.setUint8(offset + 3, 0);
     }
     offset += 4;
   }
@@ -79,8 +81,9 @@ export function decodeTrace(bytes: Uint8Array): { commands: ArcadeCommand[]; end
   for (let i = 0, offset = HEADER_BYTES; i < count; i++, offset += COMMAND_BYTES) {
     const tick = view.getUint32(offset);
     const kind = view.getUint8(offset + 4);
-    if (kind === 1) {
-      commands.push({ tick, kind: "hatch" });
+    if (kind === 1 || kind === 2) {
+      if (view.getUint8(offset + 5) !== 255 || view.getInt8(offset + 6) !== 0 || view.getUint8(offset + 7) !== 0) throw new Error("Invalid trace bytes");
+      commands.push(kind === 1 ? { tick, kind: "hatch" } : { tick, kind: "e" });
     } else if (kind === 0) {
       const ingredient = FOODS[view.getUint8(offset + 5)];
       if (!ingredient) throw new Error("Invalid trace bytes");

@@ -36,7 +36,7 @@ export function digestReplay(rules, trace, every = 600) {
   for (const c of trace.commands) {
     advance(c.tick);
     const ok = state.tick === c.tick
-      && (c.kind === "hatch" ? rules.slamHatch(state) : rules.launchFood(state, c.ingredient, c.angle, c.power));
+      && (c.kind === "hatch" ? rules.slamHatch(state) : c.kind === "e" ? rules.pressE(state) : rules.launchFood(state, c.ingredient, c.angle, c.power));
     if (!ok) return { checkpoints, final: `rejected at tick ${c.tick}`, signed: "" };
   }
   advance(trace.endTick);

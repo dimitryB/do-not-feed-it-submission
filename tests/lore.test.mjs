@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { ENDINGS, createArcade, endingFor, launchFood, slamHatch, stepArcade } from "../lib/game/arcade.ts";
+import { ENDINGS, createArcade, endingFor, launchFood, pressE, slamHatch, stepArcade } from "../lib/game/arcade.ts";
 import {
   ALL_VERSES, CAPTIONS, CAUSES, CRAVING_LINES, ENDING_JOKES, HALLOWEEN, HEADLINES, PRESS_E, TALKBACK, TOKEN_TRAITS, VERSES, WALLET_TIERS, catchLine, forkCaption, missCaption, pressELine, tantrumCaption, tokenCopy, verseAt, frenzyLine, revertCaption,
 } from "../lib/render/lore.ts";
 import { FLICKER_DARKEST, flickerAt, seasonFor } from "../lib/render/season.ts";
 import { CAPTION_SLOT_WIDTH, captionPadding, fitCaptionSize } from "../lib/render/captionFit.ts";
-import { PRESS_E_EVERY, PRESS_E_FIRST, PRESS_E_FLIGHT, PRESS_E_OPEN, pressEPhase } from "../lib/render/pressE.ts";
+import { PRESS_E_EVERY, PRESS_E_FIRST, PRESS_E_FLIGHT, PRESS_E_OPEN, pressEPhase } from "../lib/game/pressE.ts";
 import { BACK_ROOM, CAR_HALF, CAR_SHIFT_AT, CAR_TICKS, CAR_TITLE_EVERY, CAR_TITLE_FIRST, carIdle, carInShift, carPose } from "../lib/render/flyingCar.ts";
 import * as LORE from "../lib/render/lore.ts";
 
@@ -62,6 +62,7 @@ test("nothing the rules say in three frozen shifts reaches the screen in kitchen
     for (const command of trace.commands) {
       while (state.tick < command.tick && state.phase === "playing") { stepArcade(state); collect(); }
       if (command.kind === "hatch") slamHatch(state);
+      else if (command.kind === "e") pressE(state);
       else launchFood(state, command.ingredient, command.angle, command.power);
       collect();
     }

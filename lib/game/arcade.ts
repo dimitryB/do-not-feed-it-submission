@@ -21,12 +21,13 @@
 import { bodyField, lipsAt, placeAperture, apertureOf, pointInMouth, swallows, takesCoin, coverage, distanceToMouth, toArena, type BodyChannels, type MouthShape } from "./body.ts";
 import { G, copyFace, faceInputOf, restingFace, stepFace, type Face, type FaceInput } from "./face.ts";
 import { atan2, cos, hypot, pow, sin } from "./detmath.ts";
+import { PRESS_E_EVERY, pressEPhase } from "./pressE.ts";
 
 export type Ingredient = "metal" | "balloon" | "pepper";
 export const FOODS: readonly Ingredient[] = ["metal", "balloon", "pepper"];
 
 /** Bumped whenever a rule, the trace format or the scoring changes. */
-export const GAME_VERSION = 10;
+export const GAME_VERSION = 11;
 
 /**
  * A static kitchen collider. A serving that comes off one and is then caught is
@@ -286,6 +287,14 @@ export const TUNING = Object.freeze({
    */
   cravingPull: 0.08,
   cravingPullRange: 340,
+  /**
+   * PRESS E, when the sign is up: once per sign it fills the belly back up to
+   * `pressECap` (a full belly gets nothing, so it cannot be banked). The hosts'
+   * running joke finally does something. A +20 top-up capped at 60 was tried
+   * first: late in a shift the belly drains that much in about three seconds,
+   * and no bot lasted measurably longer for it; then a top-up to 75.
+   */
+  pressECap: 100,
   offCravingRestore: 0.25,
   offCravingCalm: 0.5,
   pausePerStreak: 0.25,
@@ -402,12 +411,14 @@ export function straightTicks(ingredient: Ingredient, power: number): number {
 
 /**
  * One player input. The trace is the whole record of a run: a launch carries
- * the two things the player chose. The hatch stays in the trace for
- * compatibility; the game is fully playable without it.
+ * the two things the player chose; `"e"` is a PRESS E hit while the sign is
+ * up (a press with no sign is never recorded). The hatch stays in the trace
+ * for compatibility; the game is fully playable without it.
  */
 export type ArcadeCommand =
   | { tick: number; kind: "launch"; ingredient: Ingredient; angle: number; power: number }
-  | { tick: number; kind: "hatch" };
+  | { tick: number; kind: "hatch" }
+  | { tick: number; kind: "e" };
 
 export interface Projectile {
   id: number; ingredient: Ingredient;
@@ -565,7 +576,7 @@ export interface ArcadeEvent {
   id: number; tick: number;
   type: "launch" | "feed" | "miss" | "chew" | "clank" | "bounce" | "bank" | "frenzy"
   | "utensil" | "cooked" | "fire" | "flame" | "jam" | "mutation" | "grow" | "craving"
-  | "tantrum" | "beat" | "hatch" | "block" | "end" | "crate" | "lip"
+  | "tantrum" | "beat" | "hatch" | "block" | "end" | "crate" | "lip" | "presse"
   // Legacy types, no longer emitted. Kept so an older renderer type-checks.
   | "snub" | "clog" | "sneeze" | "spit" | "hit" | "burp" | "gust";
   x: number; y: number; label: string;
@@ -619,6 +630,8 @@ export interface ArcadeState {
   cravingsMet: number; cravingsMissed: number; cravingStreak: number;
   /** The hatch. Shut until `hatchClosedUntil`, unusable until `hatchReadyAt`. */
   hatchClosedUntil: number; hatchReadyAt: number; hatchSaves: number;
+  /** The last PRESS E sign that was hit (-1 for none): one hit per sign. And how many hits this shift. */
+  pressESign: number; pressEHits: number;
   /** Legacy, always 0. Kept so an older HUD type-checks. */
   hungerDebt: number;
   /** Tick the one last serving was granted on, or -1 while it is unspent. */
@@ -646,7 +659,7 @@ const MAX_EVENTS = 48;
 const LIFE_TICKS = 300;
 const FOOD_RADIUS = 10;
 const MAX_COMMANDS = Math.ceil(ARENA.maxTicks / ARENA.frenzyCooldownTicks)
-  + Math.ceil(ARENA.maxTicks / ARENA.hatchCooldown) + 2;
+  + Math.ceil(ARENA.maxTicks / ARENA.hatchCooldown) + Math.ceil(ARENA.maxTicks / PRESS_E_EVERY) + 2;
 
 /**
  * How the shift ends, by how big it got. None of these may name a cause of
@@ -885,6 +898,7 @@ export function createArcade(seed: number, inherited: Ingredient | null = null):
     beatAt: TUNING.beatEvery, flame: null, benchFireUntil: 0, threat: null,
     craving: null, cravingNextAt: 180, cravingsMet: 0, cravingsMissed: 0, cravingStreak: 0,
     hatchClosedUntil: 0, hatchReadyAt: 0, hatchSaves: 0, hungerDebt: 0,
+    pressESign: -1, pressEHits: 0,
     lastServingAt: -1, lastServingSpent: false, paidTicks: 0,
     slickUntil: 0, vent: null, ending: 0, charge: 0,
     crates: [], crateAt: TUNING.crateFirst, cratesBroken: 0, cratesLost: 0,
@@ -1013,6 +1027,28 @@ export function launchFood(state: ArcadeState, ingredient: Ingredient, angle: nu
   state.shots++;
   event(state, "launch", food.x, food.y, ingredient, { ingredient });
   if (food.cooked) event(state, "cooked", food.x, food.y, "COOKED", { ingredient });
+  return true;
+}
+
+/**
+ * PRESS E. While the sign is up, the first press of each sign is a hit: the
+ * belly is topped up to `pressECap` (nothing when it is already there — the
+ * hit still counts, so a full belly wastes the sign).
+ * False with no sign up, or for a sign already hit: that press is not a
+ * command and never enters the trace.
+ */
+export function pressE(state: ArcadeState): boolean {
+  if (state.phase !== "playing") return false;
+  const sign = pressEPhase(state.tick);
+  if (!sign || sign.index <= state.pressESign) return false;
+  state.pressESign = sign.index;
+  state.pressEHits += 1;
+  const before = state.hunger;
+  if (before < TUNING.pressECap) state.hunger = TUNING.pressECap;
+  const gained = quantize(state.hunger - before);
+  state.announcement = gained > 0 ? "You pressed E. It worked." : "You pressed E. It was not hungry.";
+  event(state, "presse", state.creature.x, state.creature.y - state.creature.ry - 60, gained > 0 ? `IT WORKED +${Math.round(gained)}` : "IT WORKED",
+    { value: gained, name: gained > 0 ? "refill" : "full" });
   return true;
 }
 
@@ -2155,7 +2191,7 @@ export function replayArcade(seed: number, commands: readonly ArcadeCommand[], e
           || command.power < ARENA.minPower || command.power > ARENA.maxPower) {
         throw new Error("Invalid arcade command");
       }
-    } else if (command.kind !== "hatch") {
+    } else if (command.kind !== "hatch" && command.kind !== "e") {
       throw new Error("Invalid arcade command");
     }
     previousTick = command.tick;
@@ -2164,8 +2200,8 @@ export function replayArcade(seed: number, commands: readonly ArcadeCommand[], e
   for (const command of commands) {
     while (state.tick < command.tick && state.phase === "playing") stepArcade(state);
     if (state.tick !== command.tick) throw new Error("Rejected arcade launch");
-    const applied = command.kind === "hatch"
-      ? slamHatch(state)
+    const applied = command.kind === "hatch" ? slamHatch(state)
+      : command.kind === "e" ? pressE(state)
       : launchFood(state, command.ingredient, command.angle, command.power);
     if (!applied) throw new Error("Rejected arcade launch");
   }
