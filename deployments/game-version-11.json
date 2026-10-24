@@ -1,0 +1,83 @@
+{
+  "status": "live",
+  "activatedOn": "2026-10-24",
+  "siteUrl": "https://do-not-feed-it.pages.dev",
+  "pagesDeploymentUrl": "https://b2d69b24.do-not-feed-it.pages.dev",
+  "chainId": 43111,
+  "registry": "0x909995303dBC651da54b1ab0FF75024E907039c2",
+  "contractDeploymentRecord": "deployments/hemi-43111.json",
+  "previousActivationRecord": "deployments/game-version-10.json",
+  "gameVersion": 11,
+  "gameVersionId": "0x2cc3ff22f4a6d4ba3321e3e2d4a896d246108366ac43b4fb249c8ba706724cd5",
+  "gameplaySourceCommit": "28e1f6755a94a5f8fa60a176f779bccddbc33b15",
+  "registryVersionUpdate": {
+    "transactionHash": "0x1068a8120e29cc315574a3a4166c036466d7d2775f011b850bf7f8575f7ed7c1",
+    "blockNumber": 5584307,
+    "owner": "0x98978246D8Be2343c0e4C73812c4e1f0B83A20F2",
+    "previousGameVersion": 10,
+    "previousGameVersionId": "0xbd5cb9462bfe8b7ac0ff0c908581c4548415cee73305e800c238acff185fc2f4",
+    "receiptStatus": "success",
+    "activeVersionReadBackVerified": true,
+    "registryPaused": false
+  },
+  "rulesSha256": {
+    "lib/game/arcade.ts": "d5502ae8e4e0272e739b70a2dfeea03d8994b6f04fa85cb96ce878132c8ce6e0",
+    "lib/game/body.ts": "e5f77c1a9648de959e3e864d2e3d44dd0f151434bfce5fad5a1605e79e4b4bbc",
+    "lib/game/config.ts": "a23aabdb5609e27c83652bee2529453f2247800a564eb521250c63d9a9db7a39",
+    "lib/game/detmath.ts": "102ff3c4b1c80d2c15fa5fd17e78a331516c3b3b203319255a659e1d914d7c47",
+    "lib/game/face.ts": "0ee0a17bb6c05a032b9916a12aba6ef5e14703645e4cd899dc0fcc4b372ec69a",
+    "lib/game/pressE.ts": "0abf3c244ef165d4cc74eda884669f397a91d1b5885e002678c32e324d55d221",
+    "lib/game/simulation.ts": "1f474b1b79ce6e3fcbfb61a5b7df77ccc4bf5a57cfa76eae23774d83846603cc"
+  },
+  "traceEncodingSha256": {
+    "lib/chain/trace.ts": "aa7f5ad8b5cd8a48d55efc38b745faa363cb0a7f8320b96580e585b59028f1c6"
+  },
+  "validation": {
+    "applicationTests": 170,
+    "contractTests": 31,
+    "githubCI": "passed",
+    "githubCIRunUrl": "https://github.com/dimitryB/do-not-feed-it-submission/actions/runs/40135041665",
+    "previewBrowsers": ["Chromium", "WebKit", "Firefox"],
+    "previewPressEHit": "passed",
+    "mergedFirefoxCreaturePosesAtDpr2": 25,
+    "mergedChromiumKeyboardRefillChecks": "passed",
+    "liveBrowserEngines": ["Chromium 156", "WebKit 26", "Firefox 146.0.1"],
+    "liveBrowserDpr": 2,
+    "liveBrowserChecks": "passed",
+    "livePressEHit": "passed in Chromium",
+    "liveConfigAndWorld": "version 11, enabled, fresh",
+    "liveAttestationChecks": 13,
+    "publicTraceReplayChecks": 10,
+    "verifierSignatureMatchesRegistry": true,
+    "attestationIdempotent": true,
+    "contractAcceptance": "eth_call simulation passed",
+    "ownerRegistryVersionTransactions": 1,
+    "gameFilingTransactionsSent": 0,
+    "realWalletFilingVerified": false
+  },
+  "attestationProof": {
+    "runId": "0x23da49b5e3571ce05f7f352434c0a374a699bc6396fedb16c0a56fd60c5354da",
+    "traceUrl": "https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x23da49b5e3571ce05f7f352434c0a374a699bc6396fedb16c0a56fd60c5354da",
+    "durationTicks": 43200,
+    "commandCount": 1352,
+    "pressECommands": 10,
+    "score": 1086666,
+    "totalFeeds": 1260,
+    "btcFed": 421,
+    "ethFed": 419,
+    "hemiFed": 420,
+    "ending": 3,
+    "usedRunIdsBeforeSimulation": false,
+    "usedRunIdsAfterSimulation": false,
+    "filed": false
+  },
+  "notes": [
+    "Version 11 adds PRESS E as a recorded command that restores a hungry belly to 100% once per sign.",
+    "The owner signed the registry-version update on a separate Mac; the transaction receipt and accepted version were independently verified before production activation.",
+    "The existing contract was not redeployed; its original deployment journal and the historical version 10 activation record are preserved.",
+    "Production browser checks covered loaded artwork, omitted development hooks, matching enabled version 11 configuration, start, keyboard launch, pause/resume and no browser or scene errors. Chromium also hit a live PRESS E sign.",
+    "A live ticket containing ten PRESS E commands passed replay attestation, verifier-signature verification, idempotent repeat, all ten public trace replay checks and a submitResult eth_call simulation.",
+    "The contract acceptance check did not broadcast a game transaction or create a filing; usedRunIds remained false before and after the simulation. No real funded-wallet game filing is claimed.",
+    "Future outcome-changing rules require a new GAME_VERSION and an owner update of the registry active version."
+  ]
+}

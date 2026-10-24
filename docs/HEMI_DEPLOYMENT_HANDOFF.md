@@ -6,8 +6,8 @@ creation and runtime match on [Sourcify](https://repo.sourcify.dev/43111/0x90999
 It is also [verified on Routescan](https://routescan.io/address/0x909995303dBC651da54b1ab0FF75024E907039c2?chainid=43111).
 Its Cloudflare production database and server verifier are active. Hemi Mainnet
 filing was enabled on October 24, 2026. The
-[version 10 activation record](../deployments/game-version-10.json) identifies
-the deployed game rules and completed validation; a real funded-wallet filing
+[version 11 activation record](../deployments/game-version-11.json) identifies
+the current game rules and validation status; a real funded-wallet filing
 and mined game receipt remain an operator follow-up.
 
 ## Completed deployment
@@ -48,7 +48,7 @@ later site deployments, subject to the rules-version freeze below.
 Keep the deployment wallet key on the Mac where it already lives. The server
 verifier is a separate key, stored as an encrypted production Pages secret.
 
-## Pages activation and validation — October 24, 2026
+## Historical version 10 activation and validation — October 24, 2026
 
 The production origin is [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev).
 The activation deployment is
@@ -74,19 +74,9 @@ false before and after the simulation; it did not create a filing or receipt.
 The test player was ephemeral and unfunded, and its key and signature were
 not retained.
 
-**Remaining operator check:** play a new live shift and choose **File this
-shift** with your funded wallet. Filing is optional and pays Hemi network gas.
-Confirm the successful receipt and `ResultRecorded` event, then run
-the verifier from the frozen version 10 commit:
-
-```sh
-node --experimental-strip-types scripts/verify-filing.mjs \
-  --site https://do-not-feed-it.pages.dev --rpc https://rpc.hemi.network/rpc \
-  --tx <transaction hash>
-```
-
-A real funded-wallet filing, mined game receipt and replay against that
-onchain event have not yet been tested.
+These version 10 checks did not include a real funded-wallet filing, mined game
+receipt or replay against that onchain event. The current version's remaining
+operator check is described below.
 
 Version 10 is frozen at the activation commit above. The three balance commits
 `a4e7109`, `44e88cc` and `c0439ec` preceded public filing activation; RPC logs
@@ -97,29 +87,57 @@ Keep the version 10 source available for replay.
 
 ## Version 11 (PRESS E) activation
 
-Version 11 makes a PRESS E hit a recorded command that fills a hungry belly back up to 100%.
-No shift was filed under version 10, so nothing is lost by moving on. Activate
-it from the merged commit, in this order:
+Version 11 makes a PRESS E hit a recorded command that fills a hungry belly
+back up to 100%. Its rules are frozen at the merged source commit
+[`28e1f6755a94a5f8fa60a176f779bccddbc33b15`](https://github.com/dimitryB/do-not-feed-it-submission/commit/28e1f6755a94a5f8fa60a176f779bccddbc33b15).
+The public [version 11 activation record](../deployments/game-version-11.json)
+contains the rules-file hashes and validation status.
 
-1. Rotate the registry (owner key, on the Mac that holds it). A dry run first:
+The owner updated the registry in transaction
+[`0x1068a8120e29cc315574a3a4166c036466d7d2775f011b850bf7f8575f7ed7c1`](https://explorer.hemi.xyz/tx/0x1068a8120e29cc315574a3a4166c036466d7d2775f011b850bf7f8575f7ed7c1),
+confirmed successfully in block `5584307`. Independent readback confirmed the
+registry is unpaused and accepts `gameVersionId(11)` =
+`0x2cc3ff22f4a6d4ba3321e3e2d4a896d246108366ac43b4fb249c8ba706724cd5`.
+The matching production Pages deployment is
+[`b2d69b24.do-not-feed-it.pages.dev`](https://b2d69b24.do-not-feed-it.pages.dev),
+serving the merged commit above. The original contract deployment journal and
+version 10 activation record remain unchanged.
 
-   ```sh
-   DNFI_CONTRACT_ADDRESS=0x909995303dBC651da54b1ab0FF75024E907039c2 DNFI_DRY_RUN=1 \
-     npx hardhat run scripts/set-game-version.ts --network hemi
-   DNFI_CONTRACT_ADDRESS=0x909995303dBC651da54b1ab0FF75024E907039c2 \
-     npx hardhat run scripts/set-game-version.ts --network hemi
-   ```
+All 170 application tests and 31 contract tests passed before release, as did
+the production builds and GitHub CI. Preview checks passed in Chromium,
+Safari/WebKit and Firefox, including a live PRESS E hit. Merged-source checks
+also passed every creature pose in Firefox at Retina resolution and the
+Chromium keyboard/refill cases. Production checks passed in Chromium 156,
+Safari/WebKit 26 and Firefox 146.0.1 at Retina resolution: loaded artwork,
+omitted development hooks, matching enabled version 11 configuration, start,
+keyboard launch, pause/resume and no browser or scene errors. Chromium hit a
+live PRESS E sign and rendered IT WORKED. The live config and indexed world
+both reported version 11, and the world was fresh.
 
-   It refuses unless the unlocked account is the owner, and reads the new
-   `activeGameVersion` back (`gameVersionId(11)` =
-   `0x2cc3ff22f4a6d4ba3321e3e2d4a896d246108366ac43b4fb249c8ba706724cd5`).
-2. Redeploy Pages from the same commit with the README's Pages commands.
-3. Play a live shift, press E on a sign, file it, and check the receipt and
-   `verify-filing.mjs` replay as above. Record version 11 the way
-   `deployments/game-version-10.json` records version 10.
+A public version 11 ticket replayed for 43,200 ticks with 1,352 commands,
+including ten PRESS E hits, and scored 1,086,666. Its 1,260 feeds were 421 BTC,
+419 ETH and 420 HEMI. All 13 live attestation checks passed, including agreement
+with local replay, verifier-signature verification against the deployed
+registry and idempotent repeat. The
+[persisted public trace](https://do-not-feed-it.pages.dev/api/chain/trace?runId=0x23da49b5e3571ce05f7f352434c0a374a699bc6396fedb16c0a56fd60c5354da)
+passed all ten independent CLI replay checks. A `submitResult` `eth_call`
+simulation accepted the player and verifier signatures. No game transaction
+was sent: `usedRunIds` stayed false before and after the simulation.
 
-Between steps 1 and 2 the live site still signs version 10 results, which the
-registry now refuses (`WrongVersion`); keep the gap short.
+**Remaining operator check:** play a new live shift, press E on a sign and
+choose **File this shift** with a funded wallet. Filing is optional and pays
+Hemi network gas. Confirm the receipt and `ResultRecorded` event, then replay
+the filing from the frozen version 11 commit:
+
+```sh
+node --experimental-strip-types scripts/verify-filing.mjs \
+  --site https://do-not-feed-it.pages.dev --rpc https://rpc.hemi.network/rpc \
+  --tx <transaction hash>
+```
+
+No real version 11 game filing or mined game receipt has been verified yet.
+The owner's rules-version update is an administrative transaction, not a game
+filing.
 
 ## Deployment parameters
 
@@ -129,8 +147,8 @@ registry now refuses (`WrongVersion`); keep the gap short.
 | Gas currency | ETH on Hemi |
 | Owner | The deploying wallet, unless `DNFI_OWNER` is explicitly set |
 | Verifier address | `0x89B89E32F34b50D3aD1cC7D77D288C8DF4d7e965` |
-| Game version | `10` |
-| Version hash | `0xbd5cb9462bfe8b7ac0ff0c908581c4548415cee73305e800c238acff185fc2f4` |
+| Active game version | `11` |
+| Active version hash | `0x2cc3ff22f4a6d4ba3321e3e2d4a896d246108366ac43b4fb249c8ba706724cd5` |
 | Epoch length | `86400` seconds |
 | Compiler | Solidity `0.8.28`, Paris, via IR, optimizer 200 runs |
 

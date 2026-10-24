@@ -165,10 +165,11 @@ says so and goes stale rather than wrong.
 
 Every change that affects a run's outcome increases `GAME_VERSION`, and the
 contract owner rotates the accepted version (`scripts/set-game-version.ts`)
-when the matching site goes live. Version 10 is frozen at its
-[activation commit](https://github.com/dimitryB/do-not-feed-it-submission/commit/c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590)
-([activation record](deployments/game-version-10.json)); no shift was filed
-under it. Version 11 adds PRESS E.
+when the matching site goes live. Version 11 adds PRESS E and is frozen at
+[its activation commit](https://github.com/dimitryB/do-not-feed-it-submission/commit/28e1f6755a94a5f8fa60a176f779bccddbc33b15)
+([activation record](deployments/game-version-11.json)). The historical
+[version 10 source](https://github.com/dimitryB/do-not-feed-it-submission/commit/c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590)
+and [activation record](deployments/game-version-10.json) remain available for replay.
 
 ### Randomness and Bitcoin data
 
@@ -229,9 +230,9 @@ and the API routes. Its configuration is in
 has its D1 binding and CPU budget, with the verifier key stored only as
 a Cloudflare secret. The verified registry address, deployment block and genesis
 are configured in source and active in production. Local and preview
-environments remain unbound practice. The October 24 activation deployment is
-[`ee4546ca.do-not-feed-it.pages.dev`](https://ee4546ca.do-not-feed-it.pages.dev),
-built from commit `c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590`; the public game
+environments remain unbound practice. The October 24 version 11 deployment is
+[`b2d69b24.do-not-feed-it.pages.dev`](https://b2d69b24.do-not-feed-it.pages.dev),
+built from commit `28e1f6755a94a5f8fa60a176f779bccddbc33b15`; the public game
 continues to use [do-not-feed-it.pages.dev](https://do-not-feed-it.pages.dev).
 
 From an authenticated Cloudflare account with access to this Pages project:
