@@ -17,6 +17,8 @@ tomorrow's creature will be born with whatever the community gave it most.
 
 **Live status:** practice mode. Hemi filing, shared leaderboards and community
 inheritance will be enabled after contract deployment.
+The production database and verifier are prepared; the wallet-side deployment
+steps are in the [Hemi deployment handoff](docs/HEMI_DEPLOYMENT_HANDOFF.md).
 
 **Free to play.** No wallet, account or token is needed to play, and nothing in
 the game costs anything. Once the contract is deployed, filing a finished shift
@@ -170,8 +172,8 @@ pile rules — is in [docs/CHAIN.md](docs/CHAIN.md).
 
 TypeScript, React and canvas on [vinext](https://www.npmjs.com/package/vinext)
 (Vite), hosted on Cloudflare Pages with its full server runtime. The onchain
-backend is designed for Cloudflare Workers and D1; the live practice build has
-no database or signing key. The simulation is a pure,
+backend uses Cloudflare Workers and D1. The production database and server
+verifier are prepared, while the registry address remains unconfigured. The simulation is a pure,
 fixed-tick, seeded module (`lib/game/`) with no DOM, clock or randomness of its
 own; the renderer (`lib/render/`) only draws it. The contract is Solidity with
 OpenZeppelin's ECDSA and EIP-712, tested with Hardhat; the client and Worker
@@ -203,8 +205,10 @@ verifier key and a database (see `.env.example` and `.dev.vars.example`).
 
 The live game uses Cloudflare Pages Advanced Mode, including server rendering
 and the API routes. Its configuration is in
-[`cloudflare/pages/wrangler.jsonc`](cloudflare/pages/wrangler.jsonc). It has no
-D1 binding, verifier key or contract settings, so filing stays disabled.
+[`cloudflare/pages/wrangler.jsonc`](cloudflare/pages/wrangler.jsonc). Production
+has a prepared D1 binding and CPU budget, with the verifier key stored only as
+a Cloudflare secret. The registry address and deployment block remain blank,
+so filing stays disabled. Local and preview environments remain unbound practice.
 
 From an authenticated Cloudflare account with access to this Pages project:
 

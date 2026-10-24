@@ -3,5 +3,27 @@
   "name": "do-not-feed-it",
   "pages_build_output_dir": "../../dist/pages",
   "compatibility_date": "2026-05-15",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+  "env": {
+    "production": {
+      "limits": { "cpu_ms": 30000 },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "do-not-feed-it-mainnet",
+          "database_id": "781390cc-fe92-49af-969e-7390c175d176",
+          "migrations_dir": "../../drizzle"
+        }
+      ],
+      "vars": {
+        "DNFI_CHAIN_ID": "43111",
+        "DNFI_PUBLIC_RPC_URL": "https://rpc.hemi.network/rpc",
+        "DNFI_EPOCH_SECONDS": "86400",
+        "DNFI_CONFIRMATIONS": "16",
+        "DNFI_CONTRACT_ADDRESS": "",
+        "DNFI_DEPLOY_BLOCK": "",
+        "DNFI_GENESIS": ""
+      }
+    }
+  }
 }

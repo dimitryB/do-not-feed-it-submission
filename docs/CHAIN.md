@@ -496,9 +496,15 @@ rules' own words for it.
 
 The current [live game](https://do-not-feed-it.pages.dev) runs in practice mode
 on Cloudflare Pages, with [the ledger page](https://do-not-feed-it.pages.dev/ledger)
-showing that filing is disabled. Its deployment uses no D1 binding, verifier
-secret or contract settings. See [the practice deployment instructions](../README.md#deploy-the-practice-game)
+showing that filing is disabled. Its production database and verifier are
+prepared, but no registry address or deployment block is configured.
+See [the practice deployment instructions](../README.md#deploy-the-practice-game)
 for Pages builds and uploads. Hemi contract deployment remains a separate step.
+
+The database migrations and production-only verifier secret are now prepared.
+For deployment from the Mac holding the wallet key, use the
+[mainnet deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md). No registry address is
+configured yet, so the public game remains in practice mode.
 
 The rest of this section describes the future onchain deployment.
 

@@ -137,3 +137,17 @@ or disabled world reads occurred. All 24 live endpoint/security checks pass;
 source, configuration, server-bundle and source-map probes return `404`.
 The final public host and observed asset URLs contain no personal-name terms.
 Contract deployment and live Hemi filing remain unperformed.
+
+## Mainnet infrastructure preparation
+
+Prepared a dedicated production D1 database, `do-not-feed-it-mainnet`, and
+applied migrations `0000` through `0003`. A separate verifier signing key is
+stored as an encrypted production Pages secret; its public address and the
+operator commands are in [the deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md).
+Production has a 30,000 ms CPU budget; the operator confirmed Workers Paid.
+Local and preview configurations remain unbound practice.
+
+The registry address, deployment block and genesis are deliberately blank.
+No mainnet transaction has been sent: the deployment wallet key remains on
+the operator's other Mac. The live game remains practice-only until a verified
+deployment receipt completes those settings.
