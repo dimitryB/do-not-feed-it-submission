@@ -97,7 +97,7 @@ Keep the version 10 source available for replay.
 
 ## Version 11 (PRESS E) activation
 
-Version 11 makes a PRESS E hit a recorded command that tops a hungry belly up to 75%.
+Version 11 makes a PRESS E hit a recorded command that fills a hungry belly back up to 100%.
 No shift was filed under version 10, so nothing is lost by moving on. Activate
 it from the merged commit, in this order:
 

@@ -288,13 +288,13 @@ export const TUNING = Object.freeze({
   cravingPull: 0.08,
   cravingPullRange: 340,
   /**
-   * PRESS E, when the sign is up: once per sign it tops the belly up to
-   * `pressECap` (a belly already there gets nothing, so it cannot be banked).
-   * The hosts' running joke finally does something. A +20 top-up capped at 60
-   * was tried first: late in a shift the belly drains that much in about three
-   * seconds, and no bot lasted measurably longer for it.
+   * PRESS E, when the sign is up: once per sign it fills the belly back up to
+   * `pressECap` (a full belly gets nothing, so it cannot be banked). The hosts'
+   * running joke finally does something. A +20 top-up capped at 60 was tried
+   * first: late in a shift the belly drains that much in about three seconds,
+   * and no bot lasted measurably longer for it; then a top-up to 75.
    */
-  pressECap: 75,
+  pressECap: 100,
   offCravingRestore: 0.25,
   offCravingCalm: 0.5,
   pausePerStreak: 0.25,

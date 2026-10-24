@@ -74,7 +74,7 @@ played (a bot that plays the real rules gets a real score; see §9).
   version 10.
 - **Version 11 adds PRESS E** (`lib/game/pressE.ts`, `pressE` in
   `lib/game/arcade.ts`): while the sign is up, the first E of each sign is an
-  `"e"` command that tops a hungry belly up to 75% (`TUNING.pressECap`). It goes live in two steps from
+  `"e"` command that fills a hungry belly back up to 100% (`TUNING.pressECap`). It goes live in two steps from
   the same commit: the owner rotates the registry with
   `scripts/set-game-version.ts`, and Pages is redeployed. Between the two,
   filings are refused with `WrongVersion`.

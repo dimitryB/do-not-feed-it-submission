@@ -700,9 +700,10 @@ test("PRESS E works while the sign is up, once per sign, and tops a hungry belly
   assert.equal(state.hunger, TUNING.pressECap);
   // And the one after: a full belly gets nothing, and the sign is spent anyway.
   advanceFed(state, PRESS_E_FIRST + 2 * PRESS_E_EVERY + 5);
-  state.hunger = TUNING.pressECap + 10;
+  state.hunger = TUNING.pressECap;
   assert.equal(pressE(state), true);
-  assert.equal(state.hunger, TUNING.pressECap + 10);
+  assert.equal(state.hunger, TUNING.pressECap);
+  assert.equal(state.events.at(-1).name, "full");
   assert.equal(pressE(state), false);
   assert.equal(state.pressEHits, 3);
 });

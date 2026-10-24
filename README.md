@@ -49,7 +49,7 @@ throws a **MAXI TANTRUM**. One coin all shift is a strategy. It is not a good
 one.
 
 Now and then it spits out a **PRESS E** sign. Press E while it is up and, for
-once, it works: a hungry belly gets some gas back. Press E any other time and
+once, it works: the belly fills right back up. Press E any other time and
 nothing happens.
 
 Bank a coin off the pan, the shelf, the chain, the pot or the lamp and the
