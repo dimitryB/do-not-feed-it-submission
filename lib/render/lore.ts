@@ -499,8 +499,8 @@ export const LEDGER_PAGE = {
   updated: (minutes: number) => (minutes < 1 ? 'updated just now' : `updated ${minutes} min ago`),
   stale: (minutes: number) => `Hemi did not answer: as of ${minutes} min ago`,
   verify: 'Every row is a ResultRecorded event on Hemi. Anyone can replay one: scripts/verify-filing.mjs.',
-  /** On the title, beside TOP KEEPERS. */
-  link: 'The ledger ↗',
+  /** On the title, always available in Game options and beside TOP KEEPERS. */
+  link: 'Scores & ledger →',
 } as const;
 
 /**
