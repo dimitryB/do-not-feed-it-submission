@@ -121,12 +121,13 @@ downgrade would also require a contract-tooling migration. Preserve the tested
 tooling, use trusted local configuration/inputs, and update when upstream ships
 a compatible fix. This remains a disclosed development dependency risk.
 
-Hemi Mainnet filing is enabled on the live Pages game. The remaining operator
-check is a real funded-wallet filing, its mined game receipt and public replay
-against the onchain event from the frozen version 10 commit. Activation checks
-verified public attestation and trace replay plus a contract-call simulation;
-they sent no game transaction. Hemi Explorer source publication also remains
-pending as described in the contract deployment record below.
+Hemi Mainnet filing is enabled on the live Pages game. A real version 11
+funded-wallet filing, its mined receipt and public replay against the onchain
+event passed all 20 independent checks on October 24, 2026. The
+[version 11 record](../deployments/game-version-11.json) contains the proof.
+The earlier version 10 activation checks below used a contract-call simulation
+and sent no game transaction. Hemi Explorer source publication and the MetaMask
+website-classification review remain pending; the README discloses the warning.
 See [CHAIN.md, Deployment](CHAIN.md#11-deployment).
 
 The verifier remains a trusted server key; owner rotation/pause is its recovery
@@ -138,8 +139,13 @@ deeper reorgs require operator recovery. D1 backups remain necessary for the
 permanent public replay traces. Local-chain/browser checks do not establish
 live Hemi RPC availability or production performance under load.
 
-No official contest rule document was supplied with this snapshot, so this
-review does not confirm eligibility, deadlines or permission requirements.
+The [official contest announcement](https://hemi.xyz/blog/announcing-the-hemi-arcade-contest-2-turbo-edition)
+was checked on October 24, 2026. It requires free play, Hemi Mainnet integration,
+public source with an MIT or ISC license, and web hosting; these technical
+requirements are present. The deadline is October 27, 2026 at 09:00 ET.
+The submitter must complete the Discord entry and confirm participant limits,
+originality, asset rights and permission for future Hemi events/sites and
+HAIRGames seasons. This technical review does not certify contest eligibility.
 
 ## Practice deployment follow-up
 
@@ -263,10 +269,10 @@ both signatures, while `usedRunIds` stayed false before and after the call.
 No game transaction was broadcast; the test player was ephemeral and unfunded,
 and its private key and player signature were not retained.
 
-**A real funded-wallet filing, mined game receipt and replay against its
-onchain event have not been tested.** The operator can complete that check by
-playing a new shift and choosing **File this shift**, which is optional and
-pays Hemi gas, then verifying the receipt and replay using the handoff.
+At this version 10 activation, a real funded-wallet filing, mined receipt and
+onchain replay had not yet been tested. That check subsequently passed under
+version 11; see the current [deployment handoff](HEMI_DEPLOYMENT_HANDOFF.md)
+and [activation record](../deployments/game-version-11.json).
 
 Version 10 is frozen at the activation commit above. The three balance commits
 `a4e7109`, `44e88cc` and `c0439ec` were applied before public filing activation;
