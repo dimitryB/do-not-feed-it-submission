@@ -152,6 +152,8 @@ export function createScene() {
   let freezeUntil = -1;
   let frozenAt = 0;
   let pulseAt = -10;
+  /** When PRESS E last put gas back: the belly bar lights up for a moment. */
+  let bellyLitAt = -10;
   let lastWorldTime = -1;
 
   let previewKey = ''; let guide: { x: number; y: number }[] = [];
@@ -422,7 +424,7 @@ export function createScene() {
       seenState = state;
       // The clock can run backwards between two runs (a harness resets it per
       // scene), so nothing timed from the last run may carry over.
-      freezeUntil = -1; frozenAt = 0; pulseAt = -10;
+      freezeUntil = -1; frozenAt = 0; pulseAt = -10; bellyLitAt = -10;
       // A new run, or one we have never seen: start from here rather than
       // replaying its whole history into the screen.
       seenRun = state.seed; particles.length = 0; pops.length = 0; rings.length = 0; gulps.length = 0; brushes.length = 0; caption = null; shake = 0; wobble.clear(); breathed = false; eHitIndex = -1; talked = 0; lastTalkAt = -10; blockAt = -10; blockTag = null; crateKick.clear(); flashAt = -10; cardEaten = 0; cardTotal = 0;
@@ -621,6 +623,11 @@ export function createScene() {
           say(tokenCopy(e.label), tint, 7, time, 58, 1.7, true);
           burst(e.x, e.y, reduced ? 10 : 28, tint, 260, time, 'dot', e.id, 1.0);
           if (!reduced) shake = Math.max(shake, 0.5);
+          break;
+        case 'presse':
+          // PRESS E worked: the gas it put back, over the creature, and the belly bar lights up.
+          if ((e.value ?? 0) > 0) pops.push({ x: state.creature.x, y: BELLY.y - 34, text: `+${Math.round(e.value ?? 0)} GAS`, color: '#cdec7a', born: time, size: 44 });
+          bellyLitAt = time;
           break;
         case 'craving':
           if (e.name === 'start' && e.ingredient) say(CRAVING_LINES[e.ingredient], tint, 2, time, 42, 1.1);
@@ -2248,6 +2255,8 @@ export function createScene() {
       ctx.fillStyle = fill; ctx.beginPath(); ctx.roundRect(x, y, Math.max(8, BELLY.w * fullness), BELLY.h, 7); ctx.fill();
       ctx.strokeStyle = low ? `rgba(255,120,90,${blink})` : '#5d6b5566'; ctx.lineWidth = low ? 2.5 : 1;
       ctx.beginPath(); ctx.roundRect(x, y, BELLY.w, BELLY.h, 7); ctx.stroke();
+      const lit = 1 - (t - bellyLitAt) / 0.8;
+      if (lit > 0 && lit <= 1) { ctx.strokeStyle = `rgba(241,255,200,${lit})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(x - 3, y - 3, BELLY.w + 6, BELLY.h + 6, 9); ctx.stroke(); }
       ctx.restore();
     }
 

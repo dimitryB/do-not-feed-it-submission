@@ -231,9 +231,10 @@ export const HEADLINES = {
  * Press E. Contest 1's judges could not get a game's E key to work on stream
  * and it became the hosts' running joke ("Press E, Jeremy." "I pressed E. I
  * did it."). Now and then the creature spits out a PRESS E sign
- * (`./pressE.ts`); pressing E while it is up is a hit (PRESS_E_HIT, a burst of
- * coins, ding ding ding). Pressing E any other time gets these, a little drier
- * each time. E never touches the rules.
+ * (`../game/pressE.ts`); pressing E while it is up is a hit (PRESS_E_HIT, a
+ * burst of coins, ding ding ding) and since version 11 it really works: a
+ * hungry belly is topped up to `TUNING.pressECap`. Pressing E any other time gets these, a little drier
+ * each time, and does nothing.
  */
 export const PRESS_E: readonly string[] = ['YOU PRESSED E.', 'NOTHING HAPPENED.', 'E IS NOT A TOKEN.', 'WAIT FOR IT.'];
 /** What a hit says, as a card. */

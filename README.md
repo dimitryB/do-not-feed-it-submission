@@ -48,6 +48,10 @@ it calms down and stops growing for a moment; let the ring run out and it
 throws a **MAXI TANTRUM**. One coin all shift is a strategy. It is not a good
 one.
 
+Now and then it spits out a **PRESS E** sign. Press E while it is up and, for
+once, it works: a hungry belly gets some gas back. Press E any other time and
+nothing happens.
+
 Bank a coin off the pan, the shelf, the chain, the pot or the lamp and the
 serving multiplies (a **multi-hop**). Five catches in a row is **FOMO**: for a
 few seconds everything counts triple. A block swings on a chain under the
@@ -159,11 +163,12 @@ no funds, has no token, takes no approvals and cannot be upgraded. The board is
 a cache of chain history that can always be rebuilt; when Hemi's RPC is down it
 says so and goes stale rather than wrong.
 
-Rules version 10 is frozen at the [activation commit](https://github.com/dimitryB/do-not-feed-it-submission/commit/c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590).
-The [public activation record](deployments/game-version-10.json) records the
-rules hashes and live validation.
-Every later change that affects a run's outcome must increase `GAME_VERSION`
-and have the contract owner rotate the accepted version before filing resumes.
+Every change that affects a run's outcome increases `GAME_VERSION`, and the
+contract owner rotates the accepted version (`scripts/set-game-version.ts`)
+when the matching site goes live. Version 10 is frozen at its
+[activation commit](https://github.com/dimitryB/do-not-feed-it-submission/commit/c0439ec705ffb5f62ae0d0bb7a0ce4c1d63ba590)
+([activation record](deployments/game-version-10.json)); no shift was filed
+under it. Version 11 adds PRESS E.
 
 ### Randomness and Bitcoin data
 

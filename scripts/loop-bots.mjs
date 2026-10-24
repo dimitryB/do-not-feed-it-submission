@@ -42,9 +42,10 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import * as arcade from "../lib/game/arcade.ts";
+import { PRESS_E_EVERY, PRESS_E_FIRST, PRESS_E_FLIGHT, PRESS_E_OPEN } from "../lib/game/pressE.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const { ARENA, FOODS, TUNING, createArcade, launchFood, stepArcade, replayArcade, probeFlight, cooldownFor } = arcade;
+const { ARENA, FOODS, TUNING, createArcade, launchFood, stepArcade, replayArcade, probeFlight, cooldownFor, pressE } = arcade;
 
 const TICKS = ARENA.tickRate;
 const MAX_TICKS = ARENA.maxTicks;
@@ -328,6 +329,14 @@ function canLaunch(state, config = null) {
  * the thresholds are high; what separates the tiers is aim, chew-reading and
  * bank-seeking, not rationing.
  */
+/** The PRESS E sign up at `tick` (its index, and ticks since it appeared), or null. */
+function pressESign(tick) {
+  if (tick < PRESS_E_FIRST) return null;
+  const index = Math.floor((tick - PRESS_E_FIRST) / PRESS_E_EVERY);
+  const local = tick - PRESS_E_FIRST - index * PRESS_E_EVERY;
+  return local < PRESS_E_FLIGHT + PRESS_E_OPEN ? { index, local } : null;
+}
+
 const BOTS = {
   naive: { blind: true, latency: 0, noise: 0 },
   // Sets the barrel once — the one angle and charge that lands the most coins
@@ -342,16 +351,16 @@ const BOTS = {
   // The fixed setting with the space bar held down: fires the moment the
   // launcher is ready, chewing mouth or not. A person who found HEMI's
   // straight shot and stopped aiming (Oct 24 play-test: 2:24 on HEMI alone).
-  masher: { fixed: true, direct: true, mash: true, latency: 0, noise: 1, shotGap: 20 },
-  moderate: { latency: Math.round(0.25 * TICKS), noise: 4, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
+  masher: { pressE: 1, eReact: 30, fixed: true, direct: true, mash: true, latency: 0, noise: 1, shotGap: 20 },
+  moderate: { pressE: 1, eReact: 30, latency: Math.round(0.25 * TICKS), noise: 4, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
   // The moderate bot with a human's hands: dead on with HEMI's straight shot,
   // loose with Ether's float and worse with Bitcoin's lob. The player who
   // never switches coins is this bot with DNFI_BOT_ONLY=pepper.
-  lopsided: { latency: Math.round(0.25 * TICKS), noise: 4, noiseBy: { pepper: 1.5, balloon: 8, metal: 12 }, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
+  lopsided: { pressE: 1, eReact: 30, latency: Math.round(0.25 * TICKS), noise: 4, noiseBy: { pepper: 1.5, balloon: 8, metal: 12 }, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
   // The lopsided bot with a person's other costs: most of a second to change
   // coins and find the new arc, and no faster than a shot every half second.
-  human: { latency: Math.round(0.3 * TICKS), noise: 4, noiseBy: { pepper: 2, balloon: 8, metal: 12 }, switchDelay: Math.round(0.8 * TICKS), shotGap: 30, feedBelow: 80, bankChance: 0, crateChance: 0.4, crateBelow: 84 },
-  good: { latency: Math.round(0.15 * TICKS), noise: 1.5, feedBelow: 78, bankChance: 1, crateChance: 1, crateBelow: 82 },
+  human: { pressE: 0.8, eReact: 40, latency: Math.round(0.3 * TICKS), noise: 4, noiseBy: { pepper: 2, balloon: 8, metal: 12 }, switchDelay: Math.round(0.8 * TICKS), shotGap: 30, feedBelow: 80, bankChance: 0, crateChance: 0.4, crateBelow: 84 },
+  good: { pressE: 1, eReact: 20, latency: Math.round(0.15 * TICKS), noise: 1.5, feedBelow: 78, bankChance: 1, crateChance: 1, crateBelow: 82 },
   // Not a gamer. `eyeball` aims at the middle of the mouth with a free-flight
   // guess instead of searching the rules for the widest landing window; the
   // hand is loose (±12°) and slow (450 ms); the charge is a tap or a full
@@ -361,7 +370,7 @@ const BOTS = {
   // angles would land, and almost every shot it fires is one that would.
   // Calibrated against a non-gamer playtester's shifts (about 1:40 on average
   // before D174): on the v8 rules, 200 shifts, its median was 91 s and its mean 123 s.
-  casual: { eyeball: true, latency: Math.round(0.45 * TICKS), noise: 12, feedBelow: 80, powers: [11, ARENA.maxPower], shotGap: 50 },
+  casual: { pressE: 0.7, eReact: 45, eyeball: true, latency: Math.round(0.45 * TICKS), noise: 12, feedBelow: 80, powers: [11, ARENA.maxPower], shotGap: 50 },
 };
 // Development only: extra or overriding bot configs for a calibration sweep.
 if (process.env.BOT_EXTRA) {
@@ -396,6 +405,7 @@ export function playShift(name, seed, { trackDensity = false, timeline = false, 
   // A hand changing coins: the coin last fired, and when a switch to another one is ready.
   let loaded = null; let switchReady = null;
   const crateWanted = new Map();
+  const eNoticed = new Map();
   let crateShots = 0;
   let setting = null;
   if (config.fixed) {
@@ -445,7 +455,24 @@ export function playShift(name, seed, { trackDensity = false, timeline = false, 
       }
     }
 
-    if (config.fixed) {
+    // PRESS E: once the sign has been up long enough to notice (`eReact`
+    // ticks), a bot that presses E (`pressE`, the chance it notices a given
+    // sign) does, when the belly is below the refill's cap. That tick it does
+    // nothing else: the trace holds one command per tick.
+    let pressed = false;
+    if (config.pressE && state.phase === "playing") {
+      const sign = pressESign(state.tick);
+      if (sign !== null && sign.index > state.pressESign && sign.local >= (config.eReact ?? 30) && state.hunger < TUNING.pressECap) {
+        if (!eNoticed.has(sign.index)) eNoticed.set(sign.index, config.pressE >= 1 || noise() < config.pressE);
+        if (eNoticed.get(sign.index) && (commands.length === 0 || commands[commands.length - 1].tick < state.tick) && pressE(state)) {
+          commands.push({ tick: state.tick, kind: "e" });
+          pressed = true;
+        }
+      }
+    }
+    if (pressed) {
+      // Pressed E this tick.
+    } else if (config.fixed) {
       const frenzy = view.tick < view.frenzyUntil;
       const urgentCraving = view.craving && view.craving.endsAt - view.tick < 180;
       const open = frenzy || view.tick >= view.creature.chewUntil;

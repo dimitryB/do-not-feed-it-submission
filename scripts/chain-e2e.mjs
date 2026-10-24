@@ -390,7 +390,7 @@ async function main() {
       while (state && state.phase === "playing") {
         while (state.phase === "playing" && index < commands.length && commands[index].tick <= state.tick) {
           const c = commands[index++];
-          await page.evaluate((cmd) => (cmd.kind === "hatch" ? window.__dnfi.play.hatch() : window.__dnfi.play.launch(cmd.ingredient, cmd.angle, cmd.power)), c);
+          await page.evaluate((cmd) => (cmd.kind === "hatch" ? window.__dnfi.play.hatch() : cmd.kind === "e" ? window.__dnfi.play.pressE() : window.__dnfi.play.launch(cmd.ingredient, cmd.angle, cmd.power)), c);
         }
         const next = index < commands.length ? commands[index].tick : Infinity;
         state = await page.evaluate((k) => window.__dnfi.play.step(k), Math.max(1, Math.min(600, next - state.tick)));

@@ -55,8 +55,8 @@ played (a bot that plays the real rules gets a real score; see §9).
 
 ## 3. The run, the trace, the version
 
-- `GAME_VERSION` is `lib/game/arcade.ts`'s number (10 today). The signed
-  `gameVersion` is `keccak256(utf8("do-not-feed-it/arcade/10"))` —
+- `GAME_VERSION` is `lib/game/arcade.ts`'s number (11 today). The signed
+  `gameVersion` is `keccak256(utf8("do-not-feed-it/arcade/11"))` —
   `lib/chain/types.ts` `gameVersionId(n)`. A rules change bumps the number; the
   contract's `activeGameVersion` is owner-rotatable so a bump needs a
   `setGameVersion`, not a redeploy; the board filters by version.
@@ -70,16 +70,24 @@ played (a bot that plays the real rules gets a real score; see §9).
   the activation commit so version 10 traces remain independently replayable.
   The [public activation record](../deployments/game-version-10.json) records
   the rules-file hashes, deployment URL and validation evidence separately
-  from the original contract deployment receipt.
+  from the original contract deployment receipt. No shift was filed under
+  version 10.
+- **Version 11 adds PRESS E** (`lib/game/pressE.ts`, `pressE` in
+  `lib/game/arcade.ts`): while the sign is up, the first E of each sign is an
+  `"e"` command that tops a hungry belly up to 75% (`TUNING.pressECap`). It goes live in two steps from
+  the same commit: the owner rotates the registry with
+  `scripts/set-game-version.ts`, and Pages is redeployed. Between the two,
+  filings are refused with `WrongVersion`.
 - **Seed**: the ticket's `uint32`, server-random. `createArcade(seed)` as today.
   Practice (no ticket) keeps its client-random seed and is never filed.
 - **Trace**: the `ArcadeCommand[]` the page already records plus `endTick`
   (the tick the run ended on, `state.tick` after `phase === "lost"`).
   Canonical bytes (`lib/chain/trace.ts` `encodeTrace`):
   `u8 version=1 · u32 endTick · u16 count · count × (u32 tick · u8 kind
-  [0 launch, 1 hatch] · u8 ingredient [0 metal, 1 balloon, 2 pepper; 255 for
-  hatch] · i8 angle · u8 power)`, big-endian. `traceHash = keccak256(bytes)`.
-  Bounds: `count ≤ MAX_COMMANDS` (3,088 from ARENA), `endTick ≤ 43,200`,
+  [0 launch, 1 hatch, 2 press E] · u8 ingredient [0 metal, 1 balloon,
+  2 pepper; 255 for hatch and press E] · i8 angle · u8 power)`, big-endian.
+  `traceHash = keccak256(bytes)`.
+  Bounds: `count ≤ MAX_COMMANDS` (3,098 from ARENA and the sign schedule), `endTick ≤ 43,200`,
   JSON body ≤ 256 KB. The ticket row keeps `payloadHash` (see §6), the
   signed result as JSON, the player and the signature; the **trace itself is
   kept for good** in `dnfi_run_traces` (migration 0003) with the seed, the
@@ -423,7 +431,7 @@ rules' own words for it.
   it; anyone can recompute it from `diet(e)` and check which world a filed
   shift was played in.
 
-### 10.2 The rules — `lib/game/arcade.ts`, GAME_VERSION 10 (7 when this section was written; 8 added the inherited trait, 9 the belly clock, 10 the craving's pull, a quarter serving for any other coin, and a slower belly)
+### 10.2 The rules — `lib/game/arcade.ts`, GAME_VERSION 11 (7 when this section was written; 8 added the inherited trait, 9 the belly clock, 10 the craving's pull, a quarter serving for any other coin, and a slower belly, 11 PRESS E)
 
 - `createArcade(seed, inherited: Ingredient | null = null)` and
   `replayArcade(seed, commands, endTick, inherited = null)`. With `inherited`:
@@ -458,7 +466,7 @@ rules' own words for it.
   fails the replay (`invalid_trace` or `run_not_over`).
 - `GET /api/chain/world` returns `inherited` and `sourceEpoch` for the current
   epoch (the title's prediction; the ticket is the authority for a shift).
-- `gameVersionId(GAME_VERSION)` — 10 today — is what the deployed registry's
+- `gameVersionId(GAME_VERSION)` — 11 today — is what the deployed registry's
   `activeGameVersion` must be; results filed under an older number (none exist
   off a local node) would be `WrongVersion`.
 
