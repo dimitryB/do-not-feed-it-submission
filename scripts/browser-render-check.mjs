@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Exercise the real renderer in Chromium and Safari's WebKit engine.
- * Needs Playwright browsers: npx playwright install chromium webkit
+ * Exercise the real renderer in Chromium, Firefox and Safari's WebKit engine.
+ * Needs Playwright browsers: npx playwright install chromium firefox webkit
  *
- * node scripts/browser-render-check.mjs [--browser chromium|webkit|both]
+ * node scripts/browser-render-check.mjs [--browser chromium|firefox|webkit|all]
  *   [--url http://127.0.0.1:4175] [--output /tmp/dnfi-render] [--dpr 1|2]
+ *   [--profile] [--headed]
  * Without --url, starts and stops its own development server on port 4175.
- * DNFI_CHROMIUM and DNFI_WEBKIT can select installed browser executables.
+ * DNFI_CHROMIUM, DNFI_FIREFOX and DNFI_WEBKIT can select browser executables.
  */
 import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
@@ -14,16 +15,18 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { chromium, webkit } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 import { CHROMIUM, settle, startDevServer, stopServer, waitForScene } from "./shot-kit.mjs";
 
 const { values } = parseArgs({ options: {
-  browser: { type: "string", default: "both" },
+  browser: { type: "string", default: "all" },
   url: { type: "string" },
   output: { type: "string" },
   dpr: { type: "string", default: "2" },
+  profile: { type: "boolean", default: false },
+  headed: { type: "boolean", default: false },
 } });
-assert(["chromium", "webkit", "both"].includes(values.browser), "--browser must be chromium, webkit or both");
+assert(["chromium", "firefox", "webkit", "both", "all"].includes(values.browser), "--browser must be chromium, firefox, webkit or all (both selects Chromium and WebKit)");
 assert(["1", "2"].includes(values.dpr), "--dpr must be 1 or 2");
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const output = values.output ? path.resolve(values.output) : null;
@@ -116,6 +119,28 @@ async function checkGameplay(page) {
   await page.waitForFunction(tick => window.__dnfi.play.state().tick > tick, paused);
 }
 
+/** Report costs without a hardware-dependent pass/fail threshold. */
+async function profileAnimations(page, label) {
+  for (const id of ["active-balloon", "active-pepper"]) {
+    await page.evaluate(id => window.__dnfi.settle(id, 0.35), id);
+    await page.evaluate(() => window.__dnfi.clock(null));
+    await settle(page, 30);
+    const timing = await page.evaluate(async () => {
+      window.__dnfi.resetTiming();
+      const intervals = [];
+      let previous = await new Promise(resolve => requestAnimationFrame(resolve));
+      for (let i = 0; i < 120; i++) {
+        const now = await new Promise(resolve => requestAnimationFrame(resolve));
+        intervals.push(now - previous);
+        previous = now;
+      }
+      intervals.sort((a, b) => a - b);
+      return { draw: window.__dnfi.timing(), frameMedianMs: intervals[60], frameP95Ms: intervals[114] };
+    });
+    console.log(`${label} ${id}: ${JSON.stringify(timing)}`);
+  }
+}
+
 async function checkContext(browser, url, label, forceFallback) {
   const context = await browser.newContext({ viewport: { width: 1366, height: 900 }, deviceScaleFactor: Number(values.dpr) });
   if (forceFallback) await context.addInitScript(() => {
@@ -154,6 +179,7 @@ async function checkContext(browser, url, label, forceFallback) {
     await page.evaluate(() => window.__dnfi.settle("attract-idle", 0.75));
     await settle(page, 2);
     assert.notEqual((await canvasStats(page)).hash, first.hash, "advancing the frozen animation clock must change pixels");
+    if (values.profile) await profileAnimations(page, label);
     await checkGameplay(page);
     assert.deepEqual(errors, [], `${label}: browser/scene errors`);
     console.log(`${label}: PASS (DPR ${values.dpr}, blur pixels, 25 poses, animation, launch, pause/resume)`);
@@ -168,11 +194,13 @@ let server;
 try {
   if (!values.url) server = await startDevServer(root, 4175);
   const url = values.url ?? server.url;
-  const engines = values.browser === "both" ? ["chromium", "webkit"] : [values.browser];
+  const engines = values.browser === "all" ? ["chromium", "firefox", "webkit"]
+    : values.browser === "both" ? ["chromium", "webkit"] : [values.browser];
   for (const engine of engines) {
-    const executablePath = engine === "chromium" ? CHROMIUM : process.env.DNFI_WEBKIT;
-    const browser = await ({ chromium, webkit }[engine]).launch({ ...(executablePath ? { executablePath } : {}) });
+    const executablePath = { chromium: CHROMIUM, firefox: process.env.DNFI_FIREFOX, webkit: process.env.DNFI_WEBKIT }[engine];
+    const browser = await ({ chromium, firefox, webkit }[engine]).launch({ headless: !values.headed, ...(executablePath ? { executablePath } : {}) });
     try {
+      console.log(`${engine} ${browser.version()}`);
       await checkContext(browser, url, engine, false);
       if (engine === "chromium") await checkContext(browser, url, "chromium-no-filter", true);
     } finally { await browser.close(); }
