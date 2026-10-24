@@ -54,8 +54,9 @@ export function toViemChain(chain: ChainInfo): Chain {
  * EIP-6963: ask every wallet extension to announce itself and collect the
  * answers for a moment; fall back to `window.ethereum`. The first wallet to
  * announce wins (the common case is one wallet; a chooser is not worth its
- * screen space on the report). A dev harness that injects `window.ethereum`
- * lands on the fallback.
+ * screen space on the report), except that a browser's built-in wallet goes
+ * last (`rankProviders`). A dev harness that injects `window.ethereum` lands
+ * on the fallback.
  */
 export async function discoverProviders(waitMs = 250): Promise<DiscoveredProvider[]> {
   if (typeof window === "undefined") return [];
@@ -74,8 +75,22 @@ export async function discoverProviders(waitMs = 250): Promise<DiscoveredProvide
   return found;
 }
 
+/**
+ * Built into the browser rather than installed: Brave announces its own wallet
+ * first even when MetaMask is installed, and an unconfigured Brave Wallet
+ * answers `eth_requestAccounts` by sending the player to its onboarding page.
+ */
+const BUILT_IN_WALLETS = new Set(["com.brave.wallet"]);
+const isBuiltIn = (p: DiscoveredProvider) =>
+  BUILT_IN_WALLETS.has(p.info?.rdns ?? "") || /^brave wallet$/i.test(p.info?.name ?? "");
+
+/** The announced wallets in the order to use them: installed extensions first, in announcement order; built-in browser wallets last. */
+export function rankProviders(announced: readonly DiscoveredProvider[]): DiscoveredProvider[] {
+  return [...announced.filter((p) => !isBuiltIn(p)), ...announced.filter(isBuiltIn)];
+}
+
 export async function pickProvider(): Promise<Eip1193Provider> {
-  const announced = await discoverProviders();
+  const announced = rankProviders(await discoverProviders());
   if (announced.length) return announced[0].provider;
   const injected = typeof window !== "undefined" ? (window as unknown as { ethereum?: Eip1193Provider }).ethereum : undefined;
   if (injected && typeof injected.request === "function") return injected;

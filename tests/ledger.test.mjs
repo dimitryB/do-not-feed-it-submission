@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { encodeAbiParameters, encodeEventTopics, getAbiItem } from "viem";
 import { GAME_VERSION_ID, feedRegistryAbi, resultToJson, resultTypedData, seedToBytes32 } from "../lib/chain/types.ts";
-import { recordedIn } from "../lib/chain/wallet.ts";
+import { rankProviders, recordedIn } from "../lib/chain/wallet.ts";
 import { traceHash } from "../lib/chain/trace.ts";
 import { ChainApiError, TICKET_REUSE_SECONDS, addressUrl, chainFromConfig, decodeAttest, decodeConfig, decodeTicket, decodeWorld, ticketIsFresh, txUrl } from "../lib/chain/api.ts";
 import {
@@ -663,4 +663,15 @@ test("the inherited trait's copy: two short captions for the title, the chip's t
   assert.match(body, /gas paid by you/);
   assert.match(body, /one transaction/i);
   assert.doesNotMatch(`${title} ${body}`, /\$|price|pump|dump|crash|rug|hack|exploit|scam|liquidat|treasury|foundation|bags|seed phrase|earn|reward|airdrop|claim|drain|audit|profit|free money|guarantee|promise|will win|moon/i);
+});
+
+test("an installed wallet is used before a browser's built-in one (Brave announces its own first)", () => {
+  const wallet = (name, rdns) => ({ info: { uuid: rdns, name, icon: "", rdns }, provider: { request: async () => null } });
+  const brave = wallet("Brave Wallet", "com.brave.wallet");
+  const metamask = wallet("MetaMask", "io.metamask");
+  const rabby = wallet("Rabby Wallet", "io.rabby");
+  assert.deepEqual(rankProviders([brave, metamask]).map((p) => p.info.name), ["MetaMask", "Brave Wallet"]);
+  assert.deepEqual(rankProviders([brave, rabby, metamask]).map((p) => p.info.name), ["Rabby Wallet", "MetaMask", "Brave Wallet"]);
+  assert.deepEqual(rankProviders([brave]).map((p) => p.info.name), ["Brave Wallet"], "Brave Wallet alone is still used");
+  assert.deepEqual(rankProviders([]), []);
 });
