@@ -35,7 +35,7 @@
  *   node --experimental-strip-types scripts/loop-bots.mjs [--shifts 200]
  *        [--seed 1] [--density-shifts 8] [--bots naive,moderate,good]
  *        [--json FILE] [--fixtures FILE] [--inherited metal|balloon|pepper]
- *   --bots also takes casual, fixed and fixedDirect.
+ *   --bots also takes casual, lopsided, fixed and fixedDirect.
  */
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -151,6 +151,8 @@ function intoOwnChew(pending, arrival, view) {
 
 /** Which snack to serve: the craving, else whichever it has eaten least of. */
 function pickIngredient(view) {
+  // DNFI_BOT_ONLY=metal|balloon|pepper: one coin whatever it craves, to measure what ignoring cravings costs.
+  if (process.env.DNFI_BOT_ONLY) return process.env.DNFI_BOT_ONLY;
   if (view.craving) return view.craving.ingredient;
   let best = FOODS[0];
   for (const food of FOODS) if (view.servings[food] < view.servings[best]) best = food;
@@ -338,6 +340,10 @@ const BOTS = {
   // means to a person.
   fixedDirect: { fixed: true, direct: true, latency: Math.round(0.25 * TICKS), noise: 4, feedBelow: 80 },
   moderate: { latency: Math.round(0.25 * TICKS), noise: 4, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
+  // The moderate bot with a human's hands: dead on with HEMI's straight shot,
+  // loose with Ether's float and worse with Bitcoin's lob. The player who
+  // never switches coins is this bot with DNFI_BOT_ONLY=pepper.
+  lopsided: { latency: Math.round(0.25 * TICKS), noise: 4, noiseBy: { pepper: 1.5, balloon: 8, metal: 12 }, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
   good: { latency: Math.round(0.15 * TICKS), noise: 1.5, feedBelow: 78, bankChance: 1, crateChance: 1, crateBelow: 82 },
   // Not a gamer. `eyeball` aims at the middle of the mouth with a free-flight
   // guess instead of searching the rules for the widest landing window; the
@@ -511,7 +517,7 @@ export function playShift(name, seed, { trackDensity = false, timeline = false, 
         const wantBank = view.hunger > 60 && (config.bankChance >= 1 || (config.bankChance > 0 && noise() < config.bankChance));
         const action = bestAction(view, config, pending, wantBank, state.tick);
         if (action && action.verb === "launch") {
-          const jitter = (noise() * 2 - 1) * config.noise;
+          const jitter = (noise() * 2 - 1) * (config.noiseBy?.[action.ingredient] ?? config.noise);
           const angle = clampAngle(action.angle + jitter);
           if (launchFood(state, action.ingredient, angle, action.power)) {
             commands.push({ tick: state.tick, kind: "launch", ingredient: action.ingredient, angle, power: action.power });

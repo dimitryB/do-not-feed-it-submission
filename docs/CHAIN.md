@@ -51,8 +51,8 @@ played (a bot that plays the real rules gets a real score; see §9).
 
 ## 3. The run, the trace, the version
 
-- `GAME_VERSION` is `lib/game/arcade.ts`'s number (9 today). The signed
-  `gameVersion` is `keccak256(utf8("do-not-feed-it/arcade/9"))` —
+- `GAME_VERSION` is `lib/game/arcade.ts`'s number (10 today). The signed
+  `gameVersion` is `keccak256(utf8("do-not-feed-it/arcade/10"))` —
   `lib/chain/types.ts` `gameVersionId(n)`. A rules change bumps the number; the
   contract's `activeGameVersion` is owner-rotatable so a bump needs a
   `setGameVersion`, not a redeploy; the board filters by version.
@@ -407,7 +407,7 @@ rules' own words for it.
   it; anyone can recompute it from `diet(e)` and check which world a filed
   shift was played in.
 
-### 10.2 The rules — `lib/game/arcade.ts`, GAME_VERSION 9 (7 when this section was written; 8 added the inherited trait, 9 the belly clock)
+### 10.2 The rules — `lib/game/arcade.ts`, GAME_VERSION 10 (7 when this section was written; 8 added the inherited trait, 9 the belly clock, 10 the craving's pull and its half serving for any other coin)
 
 - `createArcade(seed, inherited: Ingredient | null = null)` and
   `replayArcade(seed, commands, endTick, inherited = null)`. With `inherited`:
@@ -442,7 +442,7 @@ rules' own words for it.
   fails the replay (`invalid_trace` or `run_not_over`).
 - `GET /api/chain/world` returns `inherited` and `sourceEpoch` for the current
   epoch (the title's prediction; the ticket is the authority for a shift).
-- `gameVersionId(GAME_VERSION)` — 9 today — is what the deployed registry's
+- `gameVersionId(GAME_VERSION)` — 10 today — is what the deployed registry's
   `activeGameVersion` must be; results filed under an older number (none exist
   off a local node) would be `WrongVersion`.
 

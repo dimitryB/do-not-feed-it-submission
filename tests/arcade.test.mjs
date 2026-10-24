@@ -130,8 +130,8 @@ function mutate(state, ingredient, level) {
   assert.equal(state.mutations[ingredient], level);
 }
 
-test("the version is 9, the shift is endless, and the pillars' constants hold", () => {
-  assert.equal(GAME_VERSION, 9);
+test("the version is 10, the shift is endless, and the pillars' constants hold", () => {
+  assert.equal(GAME_VERSION, 10);
   assert.equal(ARENA.maxTicks, 43200);
   assert.equal(ARENA.cooldownTicks, 30);
   assert.equal(ARENA.frenzyCooldownTicks, 15);
@@ -629,6 +629,45 @@ test("a craving arrives with a clock; serving it pays, calms and pauses growth; 
   assert.ok(sulk.events.some((e) => e.type === "jam" && e.name === "tantrum"));
   assert.ok(sulk.rage >= TUNING.tantrumRage - 1);
   assert.ok(sulk.hunger < hunger - TUNING.tantrumHunger + 1, "a tantrum burns what it ate");
+});
+
+test("while it craves, the craved coin curves in and any other coin goes down for half: NOT THAT", () => {
+  const craving = fresh(11);
+  assert.ok(craving.craving, "a craving by now");
+  const wanted = craving.craving.ingredient;
+  const other = FOODS.find((f) => f !== wanted && f !== "metal") ?? FOODS.find((f) => f !== wanted);
+  // The same state with no craving up, and none coming.
+  const calm = fresh(11);
+  calm.craving = null; calm.cravingNextAt = 1e9;
+
+  // The pull: the craved coin, at rest beside the mouth, starts toward it; with no craving it only falls.
+  const m = craving.creature.mouth;
+  const pulled = makeFood(craving, wanted, m.midX - 200, m.midY, 0, 0);
+  const loose = makeFood(calm, wanted, m.midX - 200, m.midY, 0, 0);
+  stepArcade(craving); stepArcade(calm);
+  assert.ok(pulled.vx > loose.vx, "the craved coin curves toward the mouth");
+  assert.equal(pulled.assisted, true);
+  assert.equal(loose.assisted, false);
+  // Any other coin flies as it always does.
+  const plain = makeFood(craving, other, m.midX - 200, m.midY, 0, 0);
+  stepArcade(craving);
+  assert.equal(plain.vx, 0);
+  assert.equal(plain.assisted, false);
+
+  // The half serving: the same shot of another coin, with and without the craving up.
+  const a = fresh(11); const b = fresh(11);
+  b.craving = null; b.cravingNextAt = 1e9;
+  for (const s of [a, b]) { s.hunger = 50; s.rage = 20; }
+  const from = a.nextEventId;
+  assert.ok(feedOnce(a, other)); assert.ok(feedOnce(b, other));
+  assert.equal(a.tick, b.tick, "the same flight");
+  assert.ok(a.craving, "still waiting for the coin it wanted");
+  const feed = newEvents(a, from).find((e) => e.type === "feed");
+  assert.equal(feed.name, "snub");
+  assert.ok(feed.label.startsWith("NOT THAT"));
+  assert.ok(a.hunger < b.hunger - 1, "the wrong coin fills it less");
+  assert.ok(a.rage > b.rage, "and calms it less");
+  assert.equal(a.cravingsMet, 0);
 });
 
 test("beats: a lunge nobody stops eats the vent, which then swings under the ceiling as a bank", () => {

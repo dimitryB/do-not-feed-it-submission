@@ -484,6 +484,9 @@ export function createScene() {
           // A craving met says so. Otherwise it spits back one of the hosts'
           // lines, out of its mouth — at most one every TALK_GAP seconds.
           if (e.craved) say(CAPTIONS.craved, '#ffe28a', 3, time, 48, 0.9);
+          // The wrong coin while it waits: eaten for half, and it says so, over
+          // any bank it came in on (the bank still pays; the look is the point).
+          else if (e.name === 'snub') say(CAPTIONS.notThat, '#ff9a7a', 5, time, 52, 1.1);
           else if (time - lastTalkAt >= TALK_GAP) {
             lastTalkAt = time;
             const line = catchLine(talked++, stuffed);
@@ -1453,6 +1456,12 @@ export function createScene() {
     ctx.globalAlpha = p.spent ? 0.4 : .85; ctx.lineWidth = 2;
     if (p.bank > 0) { ctx.strokeStyle = '#ffd36a'; ctx.lineWidth = 3; }
     ctx.beginPath(); ctx.arc(p.x, p.y, 24.5, 0, Math.PI * 2); ctx.stroke();
+    if (p.assisted && !p.spent && p.kind === 'food') {
+      // Pulled in (the coin it is craving, or metal to HODL jaws): a gold ring
+      // that tightens as it curves toward the mouth.
+      ctx.globalAlpha = 0.55 + (reduced ? 0 : 0.25 * Math.sin(time * 9 + p.id)); ctx.strokeStyle = '#ffe28a'; ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.arc(p.x, p.y, 36, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    }
     if (p.cooked) {
       // Turbo'd: a hot ring around the coin, outside the mark.
       ctx.globalAlpha = 0.9; ctx.strokeStyle = '#ffd080'; ctx.lineWidth = 2;

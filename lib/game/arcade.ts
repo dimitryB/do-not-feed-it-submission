@@ -26,7 +26,7 @@ export type Ingredient = "metal" | "balloon" | "pepper";
 export const FOODS: readonly Ingredient[] = ["metal", "balloon", "pepper"];
 
 /** Bumped whenever a rule, the trace format or the scoring changes. */
-export const GAME_VERSION = 9;
+export const GAME_VERSION = 10;
 
 /**
  * A static kitchen collider. A serving that comes off one and is then caught is
@@ -271,6 +271,15 @@ export const TUNING = Object.freeze({
   cravingBonus: 260,
   cravingCalm: 13,
   cravingFeed: 8,
+  /**
+   * The craved coin curves toward the mouth while the craving is up (per tick²,
+   * within `cravingPullRange` px of the opening): switching is made easy. Any
+   * other coin, while it waits, goes down for `offCraving` of its serving and
+   * of its calm: staying put costs something you can see — NOT THAT.
+   */
+  cravingPull: 0.05,
+  cravingPullRange: 340,
+  offCraving: 0.5,
   pausePerStreak: 0.25,
   appetiteReliefFrom: 2,
   appetiteRelief: 0.02,
@@ -1078,6 +1087,8 @@ interface Env {
   vent: Vent | null;
   levels: MutationLevels;
   crates: readonly Crate[];
+  /** The coin it is craving this tick, if any: that coin is pulled in. */
+  craving: Ingredient | null;
 }
 
 /**
@@ -1098,19 +1109,20 @@ function envOf(state: ArcadeState): Env {
     bellyX: c.bx, bellyY: c.by, bellyRx: c.brx, bellyRy: c.bry,
     chewing,
     slick: state.tick < state.slickUntil, vent: state.vent, levels: state.mutations,
-    crates: state.crates,
+    crates: state.crates, craving: state.craving?.ingredient ?? null,
   };
 }
 
 function envFromCreature(creature: Creature, tick: number, frenzy: boolean, slick: boolean,
-                         vent: Vent | null, levels: MutationLevels, crates: readonly Crate[]): Env {
+                         vent: Vent | null, levels: MutationLevels, crates: readonly Crate[],
+                         craving: Ingredient | null): Env {
   const chewing = !frenzy && tick < creature.chewUntil;
   return {
     tick, mouthX: creature.x, mouthY: creature.y, mouthRx: creature.rx, mouthRy: creature.ry, gape: creature.gape,
     mouth: creature.mouth, muzzle: creature.muzzle,
     teeth: chewing && !takesCoin(creature.mouth, TUNING.mouthFit.coin, TUNING.mouthFit.share),
     bellyX: creature.bx, bellyY: creature.by, bellyRx: creature.brx, bellyRy: creature.bry,
-    chewing, slick, vent, levels, crates,
+    chewing, slick, vent, levels, crates, craving,
   };
 }
 
@@ -1213,6 +1225,17 @@ function moveFood(food: Projectile, env: Env): Outcome {
       const pull = TUNING.magnetPerLevel * env.levels.metal * (food.kind === "junk" ? 1.6 : 1);
       ax += dx / distance * pull;
       ay += dy / distance * pull;
+      food.assisted = true;
+    }
+  }
+  // The craving: the coin it wants curves in. A thrown coin only, not the kitchen's metal.
+  if (env.craving !== null && food.kind === "food" && food.ingredient === env.craving && !food.spent) {
+    const dx = env.mouth.midX - food.x;
+    const dy = env.mouth.midY - food.y;
+    const distance = hypot(dx, dy);
+    if (distance < TUNING.cravingPullRange && distance > 1) {
+      ax += dx / distance * TUNING.cravingPull;
+      ay += dy / distance * TUNING.cravingPull;
       food.assisted = true;
     }
   }
@@ -1493,6 +1516,9 @@ function acceptFood(state: ArcadeState, food: Projectile) {
   // A coin out of a crate: swallowed whole, no chew, and it pays the crate's multiplier.
   const pour = food.kind === "pour";
   const craving = state.craving !== null && food.ingredient === state.craving.ingredient;
+  // Not the one it is waiting for: eaten, grudgingly. A crate's coins are exempt.
+  const snub = state.craving !== null && !craving && !pour;
+  const grudging = snub ? TUNING.offCraving : 1;
   state.totalFeeds++;
   if (craving) state.correctFeeds++;
   state.servings[food.ingredient]++;
@@ -1508,11 +1534,11 @@ function acceptFood(state: ArcadeState, food: Projectile) {
     * (pour ? TUNING.crateMult : 1);
   const points = Math.round(base * factor) + (craving ? Math.round(TUNING.cravingBonus * (frenzy ? TUNING.frenzyScore : 1)) : 0);
   state.score += points;
-  const restore = (craving ? TUNING.restoreCraved : TUNING.restore) * (gorged ? TUNING.gorgeRestore : 1)
+  const restore = (craving ? TUNING.restoreCraved : TUNING.restore) * grudging * (gorged ? TUNING.gorgeRestore : 1)
     * (1 + TUNING.comboRestore * Math.min(TUNING.comboBonusMax, state.combo - 1))
     / (1 + TUNING.restoreShrink * (creature.size - 1));
   state.hunger = quantize(Math.min(100, state.hunger + restore));
-  state.rage = Math.max(0, state.rage - (craving ? TUNING.cravingCalm : TUNING.feedRage));
+  state.rage = Math.max(0, state.rage - (craving ? TUNING.cravingCalm : TUNING.feedRage * grudging));
   // Appetite rises with every serving, and five times as fast when it was not
   // hungry. A frenzy is the one feast that costs nothing: the power fantasy
   // has no bill.
@@ -1536,13 +1562,14 @@ function acceptFood(state: ArcadeState, food: Projectile) {
     event(state, "chew", creature.x, creature.y, "CHOMP", { value: TUNING.chewTicks });
   }
 
-  const word = pour ? "CRATE" : food.cooked ? "COOKED" : food.bank > 0 || food.bounces > 0 ? "BANK" : craving ? "CRAVING" : gorged ? "STUFFED" : "NOM";
+  const word = pour ? "CRATE" : food.cooked ? "COOKED" : food.bank > 0 || food.bounces > 0 ? "BANK" : craving ? "CRAVING" : snub ? "NOT THAT" : gorged ? "STUFFED" : "NOM";
   state.announcement = gorged ? "It was not even hungry. It got bigger anyway."
     : pour ? "Straight out of the crate."
     : food.bank > 0 ? "A bank shot. It respects the technique."
     : craving ? "Exactly what it was craving."
+    : snub ? "Not that. It ate it anyway, for half."
     : "It eats anything.";
-  event(state, "feed", food.x, food.y, `${word} +${points}`, { ingredient: food.ingredient, craved: craving, value: points });
+  event(state, "feed", food.x, food.y, `${word} +${points}`, { ingredient: food.ingredient, craved: craving, value: points, ...(snub ? { name: "snub" } : {}) });
   if (food.bank > 0 || food.bounces > 0) {
     state.banks += 1;
     event(state, "bank", food.x, food.y - 40, bankLabel(food, multiplier), { value: multiplier, name: food.bank > 0 ? food.lastBank : "floor" });
@@ -2032,7 +2059,8 @@ export function probeFlight(state: ArcadeState, ingredient: Ingredient, angle: n
     if (rage > 0) rage = quantize(Math.max(0, rage - TUNING.rageCool));
     face.hunger = hunger; face.rage = rage;
     stepCreature(creature, state.seed, tick, rage, hunger, food, state.mutations, frenzy, face);
-    const env = envFromCreature(creature, tick, frenzy, tick < state.slickUntil, state.vent, state.mutations, state.crates);
+    const env = envFromCreature(creature, tick, frenzy, tick < state.slickUntil, state.vent, state.mutations, state.crates,
+      state.craving && tick < state.craving.endsAt ? state.craving.ingredient : null);
     const surface = food.lastSurface;
     const outcome = moveFood(food, env);
     projectEvents(face, food, outcome, surface, tick);
@@ -2086,7 +2114,8 @@ export function previewFlight(state: ArcadeState, ingredient: Ingredient, angle:
     if (rage > 0) rage = quantize(Math.max(0, rage - TUNING.rageCool));
     face.hunger = hunger; face.rage = rage;
     stepCreature(creature, state.seed, tick, rage, hunger, food, state.mutations, frenzy, face);
-    const env = envFromCreature(creature, tick, frenzy, tick < state.slickUntil, state.vent, state.mutations, state.crates);
+    const env = envFromCreature(creature, tick, frenzy, tick < state.slickUntil, state.vent, state.mutations, state.crates,
+      state.craving && tick < state.craving.endsAt ? state.craving.ingredient : null);
     const surface = food.lastSurface;
     const outcome = moveFood(food, env);
     projectEvents(face, food, outcome, surface, tick);

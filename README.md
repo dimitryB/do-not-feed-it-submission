@@ -38,6 +38,13 @@ Each coin flies its own way. **Bitcoin** is heavy: lob it at full charge.
 the mouth. The mouth is open unless it is chewing — a coin thrown into a
 chewing mouth bounces off the teeth.
 
+Every so often it **craves** one coin, and a ring around it says which and for
+how long. The craved coin curves into the mouth on its own; feed it anything
+else while it waits and it eats it for half — **NOT THAT.** Fill the order and
+it calms down and stops growing for a moment; let the ring run out and it
+throws a **MAXI TANTRUM**. One coin all shift is a strategy. It is not a good
+one.
+
 Bank a coin off the pan, the shelf, the chain, the pot or the lamp and the
 serving multiplies (a **multi-hop**). Five catches in a row is **FOMO**: for a
 few seconds everything counts triple. A block swings on a chain under the
