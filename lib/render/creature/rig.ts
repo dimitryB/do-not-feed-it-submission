@@ -14,6 +14,7 @@ import {
   ANTENNAE, ANTENNA_BULB, ANTENNA_WIDTH, ARENA_HEIGHT, ARENA_WIDTH, BODY_OUTLINE, CHIN_SOURCE, EYE, EYE_SIDES, HI,
   MOUTH_OUTLINE, MOUTH_PATCH, SILHOUETTE, TONGUE, type EyeSide,
 } from "./anatomy";
+import { paintBlurred } from "../canvasBlur";
 
 export interface Patch {
   canvas: HTMLCanvasElement;
@@ -328,14 +329,15 @@ function buildMouthSkin(art: HTMLCanvasElement, artContext: CanvasRenderingConte
 
   context.save();
   context.globalCompositeOperation = "destination-out";
-  context.filter = "blur(9px)";
-  context.lineJoin = "round";
-  context.lineWidth = 5 * HI;
-  context.strokeStyle = "#000";
-  context.fillStyle = "#000";
-  mouthPath(context, rect.x, rect.y);
-  context.fill();
-  context.stroke();
+  paintBlurred(context, 9, { x: 0, y: 0, width: patch.width, height: patch.height }, (layer) => {
+    layer.lineJoin = "round";
+    layer.lineWidth = 5 * HI;
+    layer.strokeStyle = "#000";
+    layer.fillStyle = "#000";
+    mouthPath(layer, rect.x, rect.y);
+    layer.fill();
+    layer.stroke();
+  });
   context.restore();
 
   // Rebuild with the creature's own chin, in two overlapping flipped bands.
@@ -389,11 +391,11 @@ function buildMouthSkin(art: HTMLCanvasElement, artContext: CanvasRenderingConte
   lightContext.fillStyle = sideLight;
   lightContext.fillRect(0, 0, light.width, light.height);
   lightContext.globalCompositeOperation = "destination-in";
-  lightContext.filter = "blur(30px)";
-  lightContext.fillStyle = "#fff";
-  mouthPath(lightContext, rect.x, rect.y);
-  lightContext.fill();
-  lightContext.filter = "none";
+  paintBlurred(lightContext, 30, { x: 0, y: 0, width: light.width, height: light.height }, (layer) => {
+    layer.fillStyle = "#fff";
+    mouthPath(layer, rect.x, rect.y);
+    layer.fill();
+  });
   context.drawImage(light, 0, 0);
 
   // The nose casts a shadow onto the muzzle; without it the rebuilt skin sits
@@ -425,22 +427,24 @@ function buildScleraPatch(art: HTMLCanvasElement, side: EyeSide): Patch {
   context.drawImage(art, rect.x * HI, rect.y * HI, rect.width * HI, rect.height * HI, 0, 0, patch.width, patch.height);
   context.save();
   context.globalCompositeOperation = "destination-out";
-  context.filter = "blur(3px)";
-  context.beginPath();
-  context.arc((eye.pupil.x - rect.x) * HI, (eye.pupil.y - rect.y) * HI, (eye.pupil.r + 2) * HI, 0, Math.PI * 2);
-  context.fillStyle = "#000";
-  context.fill();
+  paintBlurred(context, 3, { x: 0, y: 0, width: patch.width, height: patch.height }, (layer) => {
+    layer.beginPath();
+    layer.arc((eye.pupil.x - rect.x) * HI, (eye.pupil.y - rect.y) * HI, (eye.pupil.r + 2) * HI, 0, Math.PI * 2);
+    layer.fillStyle = "#000";
+    layer.fill();
+  });
   context.restore();
   pullPushFill(patch, "rgb(196,146,26)");
   // Feather the patch to an ellipse before it goes back onto the painting: a
   // rectangular paste shows its own corners once anything else shifts.
   context.save();
   context.globalCompositeOperation = "destination-in";
-  context.filter = "blur(4px)";
-  context.fillStyle = "#fff";
-  context.beginPath();
-  context.ellipse((eye.x - rect.x) * HI, (eye.y - rect.y) * HI, (eye.rx + 4) * HI, (eye.ry + 4) * HI, 0, 0, Math.PI * 2);
-  context.fill();
+  paintBlurred(context, 4, { x: 0, y: 0, width: patch.width, height: patch.height }, (layer) => {
+    layer.fillStyle = "#fff";
+    layer.beginPath();
+    layer.ellipse((eye.x - rect.x) * HI, (eye.y - rect.y) * HI, (eye.rx + 4) * HI, (eye.ry + 4) * HI, 0, 0, Math.PI * 2);
+    layer.fill();
+  });
   context.restore();
   return { canvas: patch, x: rect.x, y: rect.y, width: rect.width, height: rect.height };
 }
@@ -514,10 +518,11 @@ function buildBackdrop(image: HTMLImageElement): HTMLCanvasElement {
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
   context.save();
   context.globalCompositeOperation = "destination-out";
-  context.filter = "blur(2px)";
-  context.fillStyle = "#000";
-  silhouettePath(context, 1, 8);
-  context.fill();
+  paintBlurred(context, 2, { x: 0, y: 0, width: canvas.width, height: canvas.height }, (layer) => {
+    layer.fillStyle = "#000";
+    silhouettePath(layer, 1, 8);
+    layer.fill();
+  });
   context.restore();
   pullPushFill(canvas, "rgb(22,34,32)");
   return canvas;
@@ -528,14 +533,15 @@ function buildBodyMask(): HTMLCanvasElement {
   const context = contextOf(mask);
   context.save();
   context.scale(0.25, 0.25);
-  context.filter = "blur(15px)";
-  context.fillStyle = "#fff";
-  context.beginPath();
-  BODY_OUTLINE.forEach(([x, y], index) => (index ? context.lineTo(x, y) : context.moveTo(x, y)));
-  context.lineTo(BODY_OUTLINE[BODY_OUTLINE.length - 1][0], 520);
-  context.lineTo(BODY_OUTLINE[0][0], 520);
-  context.closePath();
-  context.fill();
+  paintBlurred(context, 15, { x: 0, y: 0, width: ARENA_WIDTH, height: ARENA_HEIGHT }, (layer) => {
+    layer.fillStyle = "#fff";
+    layer.beginPath();
+    BODY_OUTLINE.forEach(([x, y], index) => (index ? layer.lineTo(x, y) : layer.moveTo(x, y)));
+    layer.lineTo(BODY_OUTLINE[BODY_OUTLINE.length - 1][0], 520);
+    layer.lineTo(BODY_OUTLINE[0][0], 520);
+    layer.closePath();
+    layer.fill();
+  });
   context.restore();
   return mask;
 }
