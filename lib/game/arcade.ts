@@ -273,13 +273,15 @@ export const TUNING = Object.freeze({
   cravingFeed: 8,
   /**
    * The craved coin curves toward the mouth while the craving is up (per tick²,
-   * within `cravingPullRange` px of the opening): switching is made easy. Any
-   * other coin, while it waits, goes down for `offCraving` of its serving and
-   * of its calm: staying put costs something you can see — NOT THAT.
+   * within `cravingPullRange` px of the opening): switching is made easy, and
+   * following cravings is the long shift. Any other coin, while it waits, is
+   * eaten in full but calms it only `offCravingCalm` as much — NOT THAT. (Half
+   * the serving as well was tried in v10's first cut: it cost the players who
+   * follow cravings as much as the ones who don't.)
    */
-  cravingPull: 0.05,
+  cravingPull: 0.08,
   cravingPullRange: 340,
-  offCraving: 0.5,
+  offCravingCalm: 0.5,
   pausePerStreak: 0.25,
   appetiteReliefFrom: 2,
   appetiteRelief: 0.02,
@@ -1518,7 +1520,7 @@ function acceptFood(state: ArcadeState, food: Projectile) {
   const craving = state.craving !== null && food.ingredient === state.craving.ingredient;
   // Not the one it is waiting for: eaten, grudgingly. A crate's coins are exempt.
   const snub = state.craving !== null && !craving && !pour;
-  const grudging = snub ? TUNING.offCraving : 1;
+  const grudging = snub ? TUNING.offCravingCalm : 1;
   state.totalFeeds++;
   if (craving) state.correctFeeds++;
   state.servings[food.ingredient]++;
@@ -1534,7 +1536,7 @@ function acceptFood(state: ArcadeState, food: Projectile) {
     * (pour ? TUNING.crateMult : 1);
   const points = Math.round(base * factor) + (craving ? Math.round(TUNING.cravingBonus * (frenzy ? TUNING.frenzyScore : 1)) : 0);
   state.score += points;
-  const restore = (craving ? TUNING.restoreCraved : TUNING.restore) * grudging * (gorged ? TUNING.gorgeRestore : 1)
+  const restore = (craving ? TUNING.restoreCraved : TUNING.restore) * (gorged ? TUNING.gorgeRestore : 1)
     * (1 + TUNING.comboRestore * Math.min(TUNING.comboBonusMax, state.combo - 1))
     / (1 + TUNING.restoreShrink * (creature.size - 1));
   state.hunger = quantize(Math.min(100, state.hunger + restore));
@@ -1567,7 +1569,7 @@ function acceptFood(state: ArcadeState, food: Projectile) {
     : pour ? "Straight out of the crate."
     : food.bank > 0 ? "A bank shot. It respects the technique."
     : craving ? "Exactly what it was craving."
-    : snub ? "Not that. It ate it anyway, for half."
+    : snub ? "Not that. It ate it anyway."
     : "It eats anything.";
   event(state, "feed", food.x, food.y, `${word} +${points}`, { ingredient: food.ingredient, craved: craving, value: points, ...(snub ? { name: "snub" } : {}) });
   if (food.bank > 0 || food.bounces > 0) {

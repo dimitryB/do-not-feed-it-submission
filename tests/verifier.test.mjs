@@ -56,7 +56,8 @@ test("verifyRun derives every signed number from the replay of the frozen fixtur
     const metrics = verifyRun(inputOf(trace));
     assert.equal(metrics.score, BigInt(trace.expect.score), `${label}: score`);
     assert.equal(metrics.totalFeeds, trace.expect.totalFeeds, `${label}: feeds`);
-    assert.equal(metrics.cause, 0, `${label}: cause is empty-belly`);
+    // Each shift ends the way it was recorded ending (the blind bot's kitchen is wrecked; the rest run out of gas).
+    assert.equal(metrics.cause, ["empty-belly", "kitchen-destroyed", "outgrew-the-kitchen"].indexOf(trace.expect.failureReason), `${label}: cause is ${trace.expect.failureReason}`);
     assert.equal(metrics.durationTicks, trace.endTick);
     const state = replayArcade(trace.seed, trace.commands, trace.endTick, trace.inherited ?? null);
     assert.deepEqual(metrics, metricsFromState(state, traceHash(trace.commands, trace.endTick)), `${label}: metrics`);

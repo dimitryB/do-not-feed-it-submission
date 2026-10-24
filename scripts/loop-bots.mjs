@@ -35,7 +35,7 @@
  *   node --experimental-strip-types scripts/loop-bots.mjs [--shifts 200]
  *        [--seed 1] [--density-shifts 8] [--bots naive,moderate,good]
  *        [--json FILE] [--fixtures FILE] [--inherited metal|balloon|pepper]
- *   --bots also takes casual, lopsided, fixed and fixedDirect.
+ *   --bots also takes casual, lopsided, human, fixed and fixedDirect.
  */
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -344,6 +344,9 @@ const BOTS = {
   // loose with Ether's float and worse with Bitcoin's lob. The player who
   // never switches coins is this bot with DNFI_BOT_ONLY=pepper.
   lopsided: { latency: Math.round(0.25 * TICKS), noise: 4, noiseBy: { pepper: 1.5, balloon: 8, metal: 12 }, feedBelow: 80, bankChance: 0.25, crateChance: 0.6, crateBelow: 84 },
+  // The lopsided bot with a person's other costs: most of a second to change
+  // coins and find the new arc, and no faster than a shot every half second.
+  human: { latency: Math.round(0.3 * TICKS), noise: 4, noiseBy: { pepper: 2, balloon: 8, metal: 12 }, switchDelay: Math.round(0.8 * TICKS), shotGap: 30, feedBelow: 80, bankChance: 0, crateChance: 0.4, crateBelow: 84 },
   good: { latency: Math.round(0.15 * TICKS), noise: 1.5, feedBelow: 78, bankChance: 1, crateChance: 1, crateBelow: 82 },
   // Not a gamer. `eyeball` aims at the middle of the mouth with a free-flight
   // guess instead of searching the rules for the widest landing window; the
@@ -386,6 +389,8 @@ export function playShift(name, seed, { trackDensity = false, timeline = false, 
   let counted = null;
   let pending = [];
   let cycle = 0;
+  // A hand changing coins: the coin last fired, and when a switch to another one is ready.
+  let loaded = null; let switchReady = null;
   const crateWanted = new Map();
   let crateShots = 0;
   let setting = null;
@@ -516,7 +521,14 @@ export function playShift(name, seed, { trackDensity = false, timeline = false, 
         // Trick shots are for a full belly. Below the line, the fast shot.
         const wantBank = view.hunger > 60 && (config.bankChance >= 1 || (config.bankChance > 0 && noise() < config.bankChance));
         const action = bestAction(view, config, pending, wantBank, state.tick);
-        if (action && action.verb === "launch") {
+        // A person needs a moment to press another number and find the new arc.
+        let switching = false;
+        if (action && action.verb === "launch" && config.switchDelay && loaded !== null && action.ingredient !== loaded) {
+          switchReady ??= state.tick + config.switchDelay;
+          switching = state.tick < switchReady;
+        }
+        if (action && action.verb === "launch" && !switching) {
+          loaded = action.ingredient; switchReady = null;
           const jitter = (noise() * 2 - 1) * (config.noiseBy?.[action.ingredient] ?? config.noise);
           const angle = clampAngle(action.angle + jitter);
           if (launchFood(state, action.ingredient, angle, action.power)) {

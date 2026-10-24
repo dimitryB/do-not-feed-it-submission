@@ -631,7 +631,7 @@ test("a craving arrives with a clock; serving it pays, calms and pauses growth; 
   assert.ok(sulk.hunger < hunger - TUNING.tantrumHunger + 1, "a tantrum burns what it ate");
 });
 
-test("while it craves, the craved coin curves in and any other coin goes down for half: NOT THAT", () => {
+test("while it craves, the craved coin curves in and any other coin calms it less: NOT THAT", () => {
   const craving = fresh(11);
   assert.ok(craving.craving, "a craving by now");
   const wanted = craving.craving.ingredient;
@@ -654,7 +654,7 @@ test("while it craves, the craved coin curves in and any other coin goes down fo
   assert.equal(plain.vx, 0);
   assert.equal(plain.assisted, false);
 
-  // The half serving: the same shot of another coin, with and without the craving up.
+  // The grudging serving: the same shot of another coin, with and without the craving up.
   const a = fresh(11); const b = fresh(11);
   b.craving = null; b.cravingNextAt = 1e9;
   for (const s of [a, b]) { s.hunger = 50; s.rage = 20; }
@@ -665,8 +665,8 @@ test("while it craves, the craved coin curves in and any other coin goes down fo
   const feed = newEvents(a, from).find((e) => e.type === "feed");
   assert.equal(feed.name, "snub");
   assert.ok(feed.label.startsWith("NOT THAT"));
-  assert.ok(a.hunger < b.hunger - 1, "the wrong coin fills it less");
-  assert.ok(a.rage > b.rage, "and calms it less");
+  assert.equal(a.hunger, b.hunger, "the wrong coin still fills it");
+  assert.ok(a.rage > b.rage, "but calms it less");
   assert.equal(a.cravingsMet, 0);
 });
 
